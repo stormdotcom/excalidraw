@@ -2,62 +2,69 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Excalidraw | Hand-drawn look & feel • Collaborative • Secure</title>
+    <title>Draw — Hand-drawn whiteboard &amp; diagrams | ajmalnasumudeen</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, shrink-to-fit=no"
     />
     <meta name="referrer" content="origin" />
     <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Draw" />
     <meta name="theme-color" content="#121212" />
+    <link rel="canonical" href="https://draw.ajmalnasumudeen.in/" />
 
     <!-- Primary Meta Tags -->
     <meta
       name="title"
-      content="Excalidraw — Collaborative whiteboarding made easy"
+      content="Draw — Hand-drawn whiteboard &amp; diagrams | ajmalnasumudeen"
     />
     <meta
       name="description"
-      content="Excalidraw is a virtual collaborative whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them."
+      content="A free, private, hand-drawn style whiteboard for sketching diagrams, wireframes and ideas. Works on desktop, tablet and mobile. Redesigned by ajmalnasumudeen from the open-source Excalidraw."
     />
-    <meta name="image" content="https://excalidraw.com/og-image-3.png" />
+    <meta
+      name="keywords"
+      content="whiteboard, drawing, diagram, sketch, wireframe, flowchart, excalidraw, ajmalnasumudeen, malayalam"
+    />
+    <meta name="author" content="ajmalnasumudeen" />
+    <meta
+      name="image"
+      content="https://draw.ajmalnasumudeen.in/og-image-3.png"
+    />
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:site_name" content="Excalidraw" />
+    <meta property="og:site_name" content="Draw by ajmalnasumudeen" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://excalidraw.com" />
+    <meta property="og:url" content="https://draw.ajmalnasumudeen.in/" />
     <meta
       property="og:title"
-      content="Excalidraw — Collaborative whiteboarding made easy"
+      content="Draw — Hand-drawn whiteboard &amp; diagrams | ajmalnasumudeen"
     />
-    <meta property="og:image:alt" content="Excalidraw logo" />
+    <meta property="og:image:alt" content="Draw — hand-drawn whiteboard" />
     <meta
       property="og:description"
-      content="Excalidraw is a virtual collaborative whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them."
+      content="A free, private, hand-drawn style whiteboard for sketching diagrams, wireframes and ideas. Works on desktop, tablet and mobile. Redesigned by ajmalnasumudeen from the open-source Excalidraw."
     />
-    <meta property="og:image" content="https://excalidraw.com/og-image-3.png" />
+    <meta
+      property="og:image"
+      content="https://draw.ajmalnasumudeen.in/og-image-3.png"
+    />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:site" content="@excalidraw" />
-    <meta property="twitter:url" content="https://excalidraw.com" />
+    <meta property="twitter:url" content="https://draw.ajmalnasumudeen.in/" />
     <meta
       property="twitter:title"
-      content="Excalidraw — Collaborative whiteboarding made easy"
+      content="Draw — Hand-drawn whiteboard &amp; diagrams | ajmalnasumudeen"
     />
     <meta
       property="twitter:description"
-      content="Excalidraw is a virtual collaborative whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them."
+      content="A free, private, hand-drawn style whiteboard for sketching diagrams, wireframes and ideas. Works on desktop, tablet and mobile. Redesigned by ajmalnasumudeen from the open-source Excalidraw."
     />
     <meta
       property="twitter:image"
-      content="https://excalidraw.com/og-image-3.png"
-    />
-
-    <!-- General tags -->
-    <meta
-      name="description"
-      content="Excalidraw is a virtual collaborative whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them."
+      content="https://draw.ajmalnasumudeen.in/og-image-3.png"
     />
 
     <!------------------------------------------------------------------------->
@@ -102,24 +109,6 @@
 
     <!------------------------------------------------------------------------->
     <% if (typeof PROD != 'undefined' && PROD == true) { %>
-    <script>
-      // Redirect Excalidraw+ users which have auto-redirect enabled.
-      //
-      // Redirect only the bare root path, so link/room/library urls are not
-      // redirected.
-      //
-      // Putting into index.html for best performance (can't redirect on server
-      // due to location.hash checks).
-      if (
-        window.location.pathname === "/" &&
-        !window.location.hash &&
-        !window.location.search &&
-        // if its present redirect
-        document.cookie.includes("excplus-autoredirect=true")
-      ) {
-        window.location.href = "https://app.excalidraw.com";
-      }
-    </script>
 
     <!-- Following placeholder is replaced during the build step -->
     <!-- PLACEHOLDER:EXCALIDRAW_APP_FONTS -->
@@ -246,41 +235,9 @@
   <body>
     <noscript> You need to enable JavaScript to run this app. </noscript>
     <header>
-      <h1 class="visually-hidden">Excalidraw</h1>
+      <h1 class="visually-hidden">Draw — hand-drawn whiteboard</h1>
     </header>
     <div id="root"></div>
     <script type="module" src="index.tsx"></script>
-    <!-- 100% privacy friendly analytics -->
-    <script>
-      // need to load this script dynamically bcs. of iframe embed tracking
-      var scriptEle = document.createElement("script");
-      scriptEle.setAttribute(
-        "src",
-        "https://scripts.simpleanalyticscdn.com/latest.js",
-      );
-      scriptEle.setAttribute("type", "text/javascript");
-      scriptEle.setAttribute("defer", true);
-      scriptEle.setAttribute("async", true);
-      // if iframe
-      if (window.self !== window.top) {
-        scriptEle.setAttribute("data-auto-collect", true);
-      }
-
-      document.body.appendChild(scriptEle);
-
-      // if iframe
-      if (window.self !== window.top) {
-        scriptEle.addEventListener("load", () => {
-          if (window.sa_pageview) {
-            window.window.sa_event(action, {
-              category: "iframe",
-              label: "embed",
-              value: window.location.pathname,
-            });
-          }
-        });
-      }
-    </script>
-    <!-- end LEGACY GOOGLE ANALYTICS -->
   </body>
 </html>

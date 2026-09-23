@@ -38,7 +38,7 @@ export default defineConfig({
         manualChunks(id) {
           if (
             id.includes("packages/excalidraw/locales") &&
-            id.match(/en.json|percentages.json/) === null
+            id.match(/en.json/) === null
           ) {
             const index = id.indexOf("locales/");
             // Taking the substring after "locales/"
@@ -111,10 +111,10 @@ export default defineConfig({
         ],
       },
       manifest: {
-        short_name: "Excalidraw",
-        name: "Excalidraw",
+        short_name: "Draw",
+        name: "Draw by ajmalnasumudeen",
         description:
-          "Excalidraw is a whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them.",
+          "A hand-drawn style whiteboard for sketching diagrams. Redesigned by ajmalnasumudeen from Excalidraw.",
         icons: [
           {
             src: "android-chrome-192x192.png",

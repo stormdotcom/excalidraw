@@ -7,3 +7,5 @@ Disallow:
 user-agent: *
 Allow: /$
 Disallow: /
+
+Sitemap: https://draw.ajmalnasumudeen.in/sitemap.xml

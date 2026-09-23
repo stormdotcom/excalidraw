@@ -20,9 +20,9 @@ describe("Test LanguageList", () => {
     fireEvent.click(document.querySelector(".dropdown-menu-button")!);
 
     fireEvent.change(document.querySelector(".dropdown-select__language")!, {
-      target: { value: "de-DE" },
+      target: { value: "ml-IN" },
     });
-    // switching to german, `thin` label should no longer exist
+    // switching to Malayalam, `thin` label should no longer exist
     await waitFor(() => expect(screen.queryByTitle(/thin/i)).toBeNull());
     // reset language
     fireEvent.change(document.querySelector(".dropdown-select__language")!, {

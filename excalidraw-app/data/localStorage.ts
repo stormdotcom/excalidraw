@@ -7,23 +7,11 @@ import {
 import { clearElementsForLocalStorage } from "../../packages/excalidraw/element";
 import { STORAGE_KEYS } from "../app_constants";
 
-export const saveUsernameToLocalStorage = (username: string) => {
-  try {
-    localStorage.setItem(
-      STORAGE_KEYS.LOCAL_STORAGE_COLLAB,
-      JSON.stringify({ username }),
-    );
-  } catch (error: any) {
-    // Unable to access window.localStorage
-    console.error(error);
-  }
-};
-
-export const importUsernameFromLocalStorage = (): string | null => {
+export const importLegacyUsernameFromLocalStorage = (): string | null => {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_COLLAB);
     if (data) {
-      return JSON.parse(data).username;
+      return JSON.parse(data).username || null;
     }
   } catch (error: any) {
     // Unable to access localStorage
