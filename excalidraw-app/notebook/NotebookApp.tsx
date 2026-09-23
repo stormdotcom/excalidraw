@@ -4,10 +4,12 @@ import type { Notebook, NotePage, Paper } from "./model";
 import { listNotebooks, saveNotebook } from "./storage";
 import { PageEditor } from "./PageEditor";
 import { useNotebookTheme } from "./theme";
+import { ExportDialog } from "./ExportDialog";
 import { DRAW_LOGO_SHAPES } from "../../packages/excalidraw/components/LoadingMessage";
 import {
   BackIcon,
   DownloadIcon,
+  ExportIcon,
   ExitFullscreenIcon,
   FocusIcon,
   FullscreenIcon,
@@ -84,6 +86,7 @@ export default function NotebookApp() {
   const pending = useRef<Promise<boolean> | null>(null);
   const root = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useNotebookTheme();
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -312,6 +315,11 @@ export default function NotebookApp() {
             {active && (
               <>
                 <HeaderButton
+                  icon={ExportIcon}
+                  label="Export PDF or images"
+                  onClick={() => setIsExportOpen(true)}
+                />
+                <HeaderButton
                   icon={DownloadIcon}
                   label="Download backup"
                   onClick={downloadBackup}
@@ -472,6 +480,13 @@ export default function NotebookApp() {
             />
           </div>
         )
+      )}
+      {isExportOpen && current.current && (
+        <ExportDialog
+          note={current.current}
+          currentPage={pageIndex}
+          onClose={() => setIsExportOpen(false)}
+        />
       )}
       {focus && (
         <button className="notebook-exit-focus" onClick={() => setFocus(false)}>

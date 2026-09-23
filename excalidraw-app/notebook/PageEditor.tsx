@@ -11,9 +11,61 @@ import type {
   ExcalidrawProps,
   BinaryFiles,
 } from "../../packages/excalidraw/types";
+import { FREEDRAW_PENCIL_STROKE_WIDTH } from "../../packages/excalidraw/constants";
 import { A4 } from "./model";
 import type { ResolvedTheme } from "./theme";
 import type { NotePage } from "./model";
+import {
+  HIGHLIGHTER_COLORS,
+  NotebookToolbar,
+  PENCIL_COLORS,
+} from "./NotebookToolbar";
+import type { NoteTool } from "./NotebookToolbar";
+
+const TOOL_SETTINGS_KEY = "draw-notebook-tools";
+const HIGHLIGHTER_WIDTH = 6;
+const HIGHLIGHTER_OPACITY = 35;
+
+type ToolSettings = {
+  pencilColor: string;
+  pencilWidth: number;
+  highlighterColor: string;
+};
+
+const loadToolSettings = (): ToolSettings => {
+  const defaults: ToolSettings = {
+    pencilColor: PENCIL_COLORS[0],
+    pencilWidth: FREEDRAW_PENCIL_STROKE_WIDTH,
+    highlighterColor: HIGHLIGHTER_COLORS[0],
+  };
+  try {
+    return {
+      ...defaults,
+      ...JSON.parse(localStorage.getItem(TOOL_SETTINGS_KEY) || "{}"),
+    };
+  } catch {
+    return defaults;
+  }
+};
+
+const saveToolSettings = (settings: ToolSettings) => {
+  try {
+    localStorage.setItem(TOOL_SETTINGS_KEY, JSON.stringify(settings));
+  } catch {
+    // not critical
+  }
+};
+
+const EXCALIDRAW_TOOL: Record<
+  NoteTool,
+  "freedraw" | "eraser" | "selection" | "hand"
+> = {
+  pencil: "freedraw",
+  highlighter: "freedraw",
+  eraser: "eraser",
+  select: "selection",
+  hand: "hand",
+};
 
 export const PageEditor = ({
   page,
@@ -33,13 +85,31 @@ export const PageEditor = ({
     files: BinaryFiles;
     state: string;
   } | null>(null);
+  // Notes always open on the pencil, with the last pencil colour and width.
+  const toolSettings = useRef<ToolSettings>(loadToolSettings());
+  const [tool, setTool] = useState<NoteTool | null>("pencil");
+  const toolRef = useRef<NoteTool | null>("pencil");
+  // true while a tool switch is being applied, so intermediate editor state
+  // (e.g. highlighter width) isn't remembered as the pencil's
+  const switchingTool = useRef(false);
+  const [colors, setColors] = useState({
+    pencil: toolSettings.current.pencilColor,
+    highlighter: toolSettings.current.highlighterColor,
+  });
+  const pencilWidth = toolSettings.current.pencilWidth;
   const initialData = useRef({
     elements: page.elements,
     files: page.files,
     appState: {
       ...page.appState,
       viewBackgroundColor: "transparent",
-      currentItemStrokeWidth: 1,
+      currentItemStrokeWidth: pencilWidth,
+      currentItemStrokeColor: toolSettings.current.pencilColor,
+      currentItemOpacity: 100,
+      strokeWidthByTool: {
+        ...page.appState.strokeWidthByTool,
+        freedraw: pencilWidth,
+      },
       currentItemRoughness: 0,
       activeTool: {
         type: "freedraw" as const,
@@ -57,6 +127,61 @@ export const PageEditor = ({
     );
   }, [api]);
 
+  const selectTool = useCallback(
+    (next: NoteTool) => {
+      if (!api) {
+        return;
+      }
+      const type = EXCALIDRAW_TOOL[next];
+      toolRef.current = next;
+      setTool(next);
+      api.setActiveTool({ type, locked: type === "freedraw" });
+      if (type !== "freedraw") {
+        return;
+      }
+      const settings = toolSettings.current;
+      const isHighlighter = next === "highlighter";
+      const width = isHighlighter ? HIGHLIGHTER_WIDTH : settings.pencilWidth;
+      switchingTool.current = true;
+      // after the editor has applied its own per-tool defaults
+      requestAnimationFrame(() => {
+        switchingTool.current = false;
+        api.updateScene({
+          appState: {
+            currentItemStrokeColor: isHighlighter
+              ? settings.highlighterColor
+              : settings.pencilColor,
+            currentItemOpacity: isHighlighter ? HIGHLIGHTER_OPACITY : 100,
+            currentItemStrokeWidth: width,
+            currentItemRoughness: 0,
+            strokeWidthByTool: {
+              ...api.getAppState().strokeWidthByTool,
+              freedraw: width,
+            },
+          },
+        });
+      });
+    },
+    [api],
+  );
+
+  const selectColor = useCallback(
+    (color: string) => {
+      const isHighlighter = toolRef.current === "highlighter";
+      toolSettings.current = {
+        ...toolSettings.current,
+        [isHighlighter ? "highlighterColor" : "pencilColor"]: color,
+      };
+      saveToolSettings(toolSettings.current);
+      setColors((old) => ({
+        ...old,
+        [isHighlighter ? "highlighter" : "pencil"]: color,
+      }));
+      api?.updateScene({ appState: { currentItemStrokeColor: color } });
+    },
+    [api],
+  );
+
   useEffect(() => {
     const frame = requestAnimationFrame(fitPage);
     return () => cancelAnimationFrame(frame);
@@ -67,6 +192,44 @@ export const PageEditor = ({
     appState,
     files,
   ) => {
+    // keep the note tool bar in sync when tools are picked elsewhere
+    const activeType = appState.activeTool.type;
+    const current = toolRef.current;
+    const synced: NoteTool | null =
+      activeType === "freedraw"
+        ? current === "highlighter"
+          ? "highlighter"
+          : "pencil"
+        : activeType === "selection"
+        ? "select"
+        : activeType === "eraser" || activeType === "hand"
+        ? activeType
+        : null;
+    if (synced !== current) {
+      if (synced === "pencil" && current !== "highlighter") {
+        // freehand picked from the editor's toolbar: restore pencil settings
+        selectTool("pencil");
+      } else {
+        toolRef.current = synced;
+        setTool(synced);
+      }
+    }
+    // remember pencil width/colour changed from the editor's own panel
+    if (synced === "pencil" && current === "pencil" && !switchingTool.current) {
+      const settings = toolSettings.current;
+      if (
+        appState.currentItemStrokeWidth !== settings.pencilWidth ||
+        appState.currentItemStrokeColor !== settings.pencilColor
+      ) {
+        toolSettings.current = {
+          ...settings,
+          pencilWidth: appState.currentItemStrokeWidth,
+          pencilColor: appState.currentItemStrokeColor,
+        };
+        saveToolSettings(toolSettings.current);
+      }
+    }
+
     const next = {
       x: appState.scrollX * appState.zoom.value,
       y: appState.scrollY * appState.zoom.value,
@@ -170,11 +333,14 @@ export const PageEditor = ({
           <MainMenu.DefaultItems.ClearCanvas />
         </MainMenu>
       </Excalidraw>
-      {!focus && (
-        <button className="notebook-fit" onClick={fitPage}>
-          Fit A4 page
-        </button>
-      )}
+      <NotebookToolbar
+        tool={tool}
+        pencilColor={colors.pencil}
+        highlighterColor={colors.highlighter}
+        onTool={selectTool}
+        onColor={selectColor}
+        onFit={fitPage}
+      />
     </div>
   );
 };

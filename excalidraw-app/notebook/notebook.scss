@@ -584,3 +584,268 @@
     transition: none !important;
   }
 }
+
+// ------------------------------------------------------------ note tools --
+
+.notebook-toolbar {
+  position: absolute;
+  left: 50%;
+  bottom: calc(16px + var(--nb-safe-bottom));
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  max-width: calc(100% - 24px);
+  box-sizing: border-box;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--nb-surface);
+  border: 1px solid var(--nb-border);
+  border-radius: 14px;
+  box-shadow: var(--nb-shadow);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  button {
+    font: inherit;
+    color: var(--nb-text);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  &__tool {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        background: var(--nb-surface-hover);
+      }
+    }
+
+    &[aria-pressed="true"] {
+      background: var(--nb-primary-light);
+      color: var(--nb-primary);
+    }
+  }
+
+  &__colors {
+    display: flex;
+    gap: 2px;
+    padding: 0 6px;
+    margin: 0 2px;
+    border-left: 1px solid var(--nb-border);
+    border-right: 1px solid var(--nb-border);
+  }
+
+  &__swatch {
+    flex-shrink: 0;
+    width: 36px;
+    height: 44px;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    display: grid;
+    place-items: center;
+
+    &::before {
+      content: "";
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--swatch);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+    }
+
+    &[aria-checked="true"]::before {
+      box-shadow: 0 0 0 2px var(--nb-surface), 0 0 0 4px var(--nb-primary);
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--nb-primary);
+    outline-offset: 1px;
+  }
+}
+
+.notebook--focus .notebook-toolbar {
+  bottom: calc(12px + var(--nb-safe-bottom));
+}
+
+// ---------------------------------------------------------------- dialog --
+
+.notebook-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: calc(16px + var(--nb-safe-top)) 16px
+    calc(16px + var(--nb-safe-bottom));
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.notebook-dialog {
+  width: min(440px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 20px;
+  background: var(--nb-surface);
+  color: var(--nb-text);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  outline: none;
+
+  h2 {
+    margin: 0 0 16px;
+    font-size: 20px;
+  }
+
+  fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0 0 18px;
+  }
+
+  legend {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--nb-muted);
+    margin-bottom: 8px;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1px solid var(--nb-border);
+    border-radius: var(--nb-radius);
+    background: var(--nb-surface);
+    cursor: pointer;
+    touch-action: manipulation;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+
+  button.notebook-primary {
+    color: var(--nb-on-primary);
+    background: var(--nb-primary);
+    border-color: var(--nb-primary);
+    font-weight: 600;
+  }
+
+  input {
+    accent-color: var(--nb-primary);
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    flex-shrink: 0;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--nb-primary);
+    outline-offset: 2px;
+  }
+
+  &__formats label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--nb-border);
+    border-radius: var(--nb-radius);
+    cursor: pointer;
+
+    &:has(input:checked) {
+      border-color: var(--nb-primary);
+      background: var(--nb-primary-light);
+    }
+
+    span {
+      display: flex;
+      flex-direction: column;
+    }
+
+    small {
+      color: var(--nb-muted);
+      font-size: 13px;
+    }
+  }
+
+  &__quick {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  &__page-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 4px;
+    max-height: 180px;
+    overflow: auto;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      cursor: pointer;
+    }
+  }
+
+  &__error {
+    color: var(--nb-error-text);
+    background: var(--nb-error-bg);
+    padding: 8px 12px;
+    border-radius: var(--nb-radius);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 760px) {
+  // sit above the editor's own bottom bar on phones
+  .notebook-toolbar {
+    bottom: calc(68px + var(--nb-safe-bottom));
+  }
+
+  .notebook-toolbar__tool {
+    width: 40px;
+  }
+
+  .notebook-toolbar__swatch {
+    width: 30px;
+  }
+
+  .notebook-dialog__actions button {
+    flex: 1;
+  }
+}

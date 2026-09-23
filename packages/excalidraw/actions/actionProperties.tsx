@@ -495,6 +495,8 @@ export const actionChangeStrokeWidth = register({
         ? selectedElements.map((element) => getMinStrokeWidth(element.type))
         : [getMinStrokeWidth(appState.activeTool.type)]),
     );
+    // the freehand pencil goes below 1, so allow half steps there
+    const step = min > 0 && min < 1 ? min : 1;
 
     return (
       <fieldset>
@@ -529,7 +531,7 @@ export const actionChangeStrokeWidth = register({
             type="range"
             min={min}
             max={STROKE_WIDTH_RANGE.max}
-            step={1}
+            step={step}
             value={value ?? min}
             aria-label={t("labels.strokeWidth")}
             data-testid="strokeWidth-slider"
@@ -540,6 +542,7 @@ export const actionChangeStrokeWidth = register({
             className="stroke-width-slider__value"
             min={min}
             max={STROKE_WIDTH_RANGE.max}
+            step={step}
             value={value ?? ""}
             placeholder="–"
             aria-label={t("labels.strokeWidth")}

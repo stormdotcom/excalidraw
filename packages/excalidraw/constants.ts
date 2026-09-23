@@ -356,11 +356,9 @@ export const STROKE_WIDTH = {
 /** range of the stroke width slider */
 export const STROKE_WIDTH_RANGE = { min: 0, max: 100 } as const;
 
-/**
- * Smallest stroke width per element type. Shapes accept 0 (no outline), but
- * for linear elements and freedraw the stroke *is* the element, so 0 would
- * make it invisible.
- */
+/** thinnest freehand stroke; rendered ≈2px wide */
+export const FREEDRAW_PENCIL_STROKE_WIDTH = 0.5;
+
 /** drawing tools that each remember their own stroke width */
 export const STROKE_WIDTH_TOOLS: ReadonlySet<string> = new Set([
   "rectangle",
@@ -371,11 +369,19 @@ export const STROKE_WIDTH_TOOLS: ReadonlySet<string> = new Set([
   "freedraw",
 ]);
 
+/**
+ * Smallest stroke width per element type. Shapes accept 0 (no outline), but
+ * for linear elements and freedraw the stroke *is* the element, so 0 would
+ * make it invisible.
+ */
 export const getMinStrokeWidth = (elementType: string) =>
   elementType === "rectangle" ||
   elementType === "diamond" ||
   elementType === "ellipse"
     ? 0
+    : // a hairline pencil (≈2px) for handwriting
+    elementType === "freedraw"
+    ? FREEDRAW_PENCIL_STROKE_WIDTH
     : 1;
 
 export const DEFAULT_ELEMENT_PROPS: {
