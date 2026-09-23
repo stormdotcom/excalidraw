@@ -52,6 +52,7 @@ import { AppMainMenu } from "./components/AppMainMenu";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
 import { AppFooter } from "./components/AppFooter";
 import { FirstVisitNameDialog } from "./components/FirstVisitNameDialog";
+import { ensureDrawKitInLibrary } from "./data/drawKit";
 import { Provider, useAtom } from "jotai";
 import { appJotaiStore } from "./app-jotai";
 
@@ -244,6 +245,11 @@ const ExcalidrawWrapper = () => {
     initializeScene().then(async (data) => {
       loadImages(data, /* isInitialLoad */ true);
       initialStatePromiseRef.current.promise.resolve(data.scene);
+      if (!isTestEnv()) {
+        ensureDrawKitInLibrary(excalidrawAPI).catch((error) =>
+          console.error("Failed to add Draw kit to library", error),
+        );
+      }
     });
 
     const onHashChange = async (event: HashChangeEvent) => {

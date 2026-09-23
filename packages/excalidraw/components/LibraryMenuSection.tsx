@@ -59,6 +59,7 @@ export const LibraryMenuSection = memo(
           return i < index ? (
             <LibraryUnit
               elements={item?.elements}
+              name={item && "name" in item ? item.name : undefined}
               isPending={!item?.id && !!item?.elements}
               onClick={onClick}
               svgCache={svgCache}
