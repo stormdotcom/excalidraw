@@ -6,8 +6,9 @@ const OSS_FONTS_CDN =
  * Other woff2 imports are automatically served and resolved as a file uri.
  *
  * @returns {import("vite").PluginOption}
+ * @param {{ localUIFonts?: boolean }} options
  */
-module.exports.woff2BrowserPlugin = () => {
+module.exports.woff2BrowserPlugin = ({ localUIFonts = false } = {}) => {
   // for now limited to woff2 only, might be extended to any assets in the future
   const regex = /^https:\/\/.+?\.woff2$/;
   let isDev;
@@ -46,7 +47,11 @@ module.exports.woff2BrowserPlugin = () => {
       }
 
       // use CDN for Assistant
-      if (!isDev && id.endsWith("/excalidraw/fonts/assets/fonts.css")) {
+      if (
+        !localUIFonts &&
+        !isDev &&
+        id.endsWith("/excalidraw/fonts/assets/fonts.css")
+      ) {
         return `/* WARN: The following content is generated during excalidraw-app build */
 
       @font-face {

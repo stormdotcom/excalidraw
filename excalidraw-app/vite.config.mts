@@ -6,6 +6,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import checker from "vite-plugin-checker";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { woff2BrowserPlugin } from "../scripts/woff2/woff2-vite-plugins";
+import { fileURLToPath } from "node:url";
 
 // To load .env.local variables
 const envVars = loadEnv("", `../`);
@@ -22,6 +23,10 @@ export default defineConfig({
   build: {
     outDir: "build",
     rollupOptions: {
+      input: {
+        app: fileURLToPath(new URL("./index.html", import.meta.url)),
+        notes: fileURLToPath(new URL("./notes.html", import.meta.url)),
+      },
       output: {
         assetFileNames(chunkInfo) {
           if (chunkInfo?.name?.endsWith(".woff2")) {
@@ -50,7 +55,7 @@ export default defineConfig({
     sourcemap: true,
   },
   plugins: [
-    woff2BrowserPlugin(),
+    woff2BrowserPlugin({ localUIFonts: true }),
     react(),
     checker({
       typescript: true,
@@ -76,6 +81,9 @@ export default defineConfig({
       },
 
       workbox: {
+        // Both entry points and bundled fonts must be available offline.
+        globPatterns: ["**/*.{js,css,html,woff2,png,svg,ico,wasm}"],
+        navigateFallbackDenylist: [/\/notes\.html$/],
         // Don't push fonts and locales to app precache
         globIgnores: ["fonts.css", "**/locales/**", "service-worker.js"],
         runtimeCaching: [

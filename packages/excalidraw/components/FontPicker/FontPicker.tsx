@@ -13,6 +13,7 @@ import { ButtonSeparator } from "../ButtonSeparator";
 import type { FontFamilyValues } from "../../element/types";
 import { FONT_FAMILY } from "../../constants";
 import { t } from "../../i18n";
+import { Fonts } from "../../fonts";
 
 import "./FontPicker.scss";
 
@@ -67,7 +68,10 @@ export const FontPicker = React.memo(
     onLeave,
     onPopupChange,
   }: FontPickerProps) => {
-    const defaultFonts = useMemo(() => DEFAULT_FONTS, []);
+    const defaultFonts = useMemo(
+      () => DEFAULT_FONTS.filter((font) => Fonts.registered.has(font.value)),
+      [],
+    );
     const onSelectCallback = useCallback(
       (value: number | false) => {
         if (value) {
