@@ -2,12 +2,7 @@ import polyfill from "../packages/excalidraw/polyfill";
 import { useEffect, useRef, useState } from "react";
 import { ErrorDialog } from "../packages/excalidraw/components/ErrorDialog";
 import { TopErrorBoundary } from "./components/TopErrorBoundary";
-import {
-  APP_NAME,
-  EVENT,
-  THEME,
-  TITLE_TIMEOUT,
-} from "../packages/excalidraw/constants";
+import { APP_NAME, EVENT, THEME } from "../packages/excalidraw/constants";
 import { loadFromBlob } from "../packages/excalidraw/data/blob";
 import type {
   FileId,
@@ -269,11 +264,6 @@ const ExcalidrawWrapper = () => {
       }
     };
 
-    const titleTimeout = setTimeout(
-      () => (document.title = APP_NAME),
-      TITLE_TIMEOUT,
-    );
-
     const syncData = debounce(() => {
       if (isTestEnv()) {
         return;
@@ -359,7 +349,6 @@ const ExcalidrawWrapper = () => {
         visibilityChange,
         false,
       );
-      clearTimeout(titleTimeout);
     };
   }, [excalidrawAPI, setLangCode]);
 
@@ -467,6 +456,7 @@ const ExcalidrawWrapper = () => {
           },
         }}
         langCode={langCode}
+        aiEnabled={false}
         renderCustomStats={renderCustomStats}
         detectScroll={false}
         handleKeyboardGlobally={true}

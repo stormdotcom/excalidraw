@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // must match the Worker name in the Cloudflare dashboard
+  "name": "excalidraw",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./excalidraw-app/build",
+    "not_found_handling": "single-page-application"
+  }
+}

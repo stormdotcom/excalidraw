@@ -57,7 +57,8 @@ export default defineConfig({
       eslint:
         envVars.VITE_APP_ENABLE_ESLINT === "false"
           ? undefined
-          : { lintCommand: 'eslint "./**/*.{js,ts,tsx}"' },
+          : { lintCommand:
+            'eslint --ignore-path ../.eslintignore "./**/*.{js,ts,tsx}"' },
       overlay: {
         initialIsOpen: envVars.VITE_APP_COLLAPSE_OVERLAY === "false",
         badgeStyle: "margin-bottom: 4rem; margin-left: 1rem",

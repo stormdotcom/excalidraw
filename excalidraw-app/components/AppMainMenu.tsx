@@ -46,18 +46,20 @@ export const AppMainMenu: React.FC<{
       <MainMenu.DefaultItems.ChangeCanvasBackground />
       <MainMenu.Separator />
       <MainMenu.ItemCustom className="app-menu-credit">
-        Redesigned by{" "}
-        <a href={AUTHOR_URL} target="_blank" rel="noopener noreferrer">
-          {AUTHOR_NAME}
-        </a>
-        , from{" "}
-        <a
-          href={EXCALIDRAW_SOURCE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Excalidraw
-        </a>
+        <span>
+          Redesigned by{" "}
+          <a href={AUTHOR_URL} target="_blank" rel="noopener noreferrer">
+            {AUTHOR_NAME}
+          </a>
+          , from{" "}
+          <a
+            href={EXCALIDRAW_SOURCE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Excalidraw
+          </a>
+        </span>
       </MainMenu.ItemCustom>
     </MainMenu>
   );
