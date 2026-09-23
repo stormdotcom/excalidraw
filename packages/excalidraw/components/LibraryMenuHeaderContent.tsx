@@ -7,13 +7,7 @@ import { useApp, useExcalidrawSetAppState } from "./App";
 import { saveLibraryAsJSON } from "../data/json";
 import type Library from "../data/library";
 import { libraryItemsAtom } from "../data/library";
-import {
-  DotsIcon,
-  ExportIcon,
-  LoadIcon,
-  publishIcon,
-  TrashIcon,
-} from "./icons";
+import { DotsIcon, ExportIcon, LoadIcon, TrashIcon } from "./icons";
 import { ToolButton } from "./ToolButton";
 import { fileOpen } from "../data/filesystem";
 import { muteFSAbortError } from "../utils";
@@ -224,15 +218,6 @@ export const LibraryDropdownMenuButton: React.FC<{
               icon={TrashIcon}
             >
               {resetLabel}
-            </DropdownMenu.Item>
-          )}
-          {itemsSelected && (
-            <DropdownMenu.Item
-              icon={publishIcon}
-              onSelect={() => setShowPublishLibraryDialog(true)}
-              data-testid="lib-dropdown--remove"
-            >
-              {t("buttons.publishLibrary")}
             </DropdownMenu.Item>
           )}
         </DropdownMenu.Content>

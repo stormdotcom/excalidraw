@@ -1,11 +1,9 @@
 import type { ExcalidrawProps, UIAppState } from "../types";
-import LibraryMenuBrowseButton from "./LibraryMenuBrowseButton";
 import clsx from "clsx";
 
+// The "Browse libraries" link to the public Excalidraw catalogue was removed;
+// the props are kept so existing callers keep compiling.
 export const LibraryMenuControlButtons = ({
-  libraryReturnUrl,
-  theme,
-  id,
   style,
   children,
   className,
@@ -17,16 +15,14 @@ export const LibraryMenuControlButtons = ({
   children?: React.ReactNode;
   className?: string;
 }) => {
+  if (!children) {
+    return null;
+  }
   return (
     <div
       className={clsx("library-menu-control-buttons", className)}
       style={style}
     >
-      <LibraryMenuBrowseButton
-        id={id}
-        libraryReturnUrl={libraryReturnUrl}
-        theme={theme}
-      />
       {children}
     </div>
   );

@@ -51,8 +51,9 @@ import {
 import { AppMainMenu } from "./components/AppMainMenu";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
 import { AppFooter } from "./components/AppFooter";
-import { FirstVisitNameDialog } from "./components/FirstVisitNameDialog";
-import { ensureDrawKitInLibrary } from "./data/drawKit";
+import { RefreshAppButton } from "./components/RefreshAppButton";
+import { hasLocalUser } from "./data/localUser";
+import { lazyComponent } from "../packages/excalidraw/components/lazyComponent";
 import { Provider, useAtom } from "jotai";
 import { appJotaiStore } from "./app-jotai";
 
@@ -69,6 +70,17 @@ import { GithubIcon } from "../packages/excalidraw/components/icons";
 import { appThemeAtom, useHandleAppTheme } from "./useHandleAppTheme";
 import { getPreferredLanguage } from "./app-language/language-detector";
 import { useAppLangCode } from "./app-language/language-state";
+
+// Only shown once per browser, so keep it out of the main bundle.
+const FirstVisitNameDialog = lazyComponent(() =>
+  import("./components/FirstVisitNameDialog").then(
+    (m) => m.FirstVisitNameDialog,
+  ),
+);
+
+const isTouchDevice = () =>
+  typeof window !== "undefined" &&
+  !!window.matchMedia?.("(pointer: coarse)").matches;
 
 polyfill();
 
@@ -172,6 +184,7 @@ const initializeScene = async (): Promise<{
 
 const ExcalidrawWrapper = () => {
   const [errorMessage, setErrorMessage] = useState("");
+  const [shouldAskName] = useState(() => !isTestEnv() && !hasLocalUser());
 
   const [appTheme, setAppTheme] = useAtom(appThemeAtom);
   const { editorTheme } = useHandleAppTheme();
@@ -246,9 +259,13 @@ const ExcalidrawWrapper = () => {
       loadImages(data, /* isInitialLoad */ true);
       initialStatePromiseRef.current.promise.resolve(data.scene);
       if (!isTestEnv()) {
-        ensureDrawKitInLibrary(excalidrawAPI).catch((error) =>
-          console.error("Failed to add Draw kit to library", error),
-        );
+        import("./data/drawKit")
+          .then(({ ensureDrawKitInLibrary }) =>
+            ensureDrawKitInLibrary(excalidrawAPI),
+          )
+          .catch((error) =>
+            console.error("Failed to add Draw kit to library", error),
+          );
       }
     });
 
@@ -465,6 +482,9 @@ const ExcalidrawWrapper = () => {
         langCode={langCode}
         aiEnabled={false}
         renderCustomStats={renderCustomStats}
+        renderTopRightUI={(isMobile) =>
+          isMobile || isTouchDevice() ? <RefreshAppButton /> : null
+        }
         detectScroll={false}
         handleKeyboardGlobally={true}
         autoFocus={true}
@@ -480,7 +500,7 @@ const ExcalidrawWrapper = () => {
           <OverwriteConfirmDialog.Actions.SaveToDisk />
         </OverwriteConfirmDialog>
         <AppFooter />
-        <FirstVisitNameDialog />
+        {shouldAskName && <FirstVisitNameDialog />}
         {errorMessage && (
           <ErrorDialog onClose={() => setErrorMessage("")}>
             {errorMessage}

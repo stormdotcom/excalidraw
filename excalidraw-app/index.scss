@@ -163,3 +163,44 @@
     line-height: 1;
   }
 }
+
+.excalidraw .app-refresh-button {
+  padding: 0 0.625rem;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: progress;
+  }
+
+  &--busy svg {
+    animation: app-refresh-spin 0.8s linear infinite;
+  }
+}
+
+@keyframes app-refresh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .excalidraw .app-refresh-button--busy svg {
+    animation: none;
+  }
+}
+
+// phones: sits at the bottom of the library / lock / hand column
+.excalidraw .mobile-misc-tools-container .app-refresh-button {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  justify-content: center;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}

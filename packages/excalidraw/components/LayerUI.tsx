@@ -23,19 +23,15 @@ import type {
 import { capitalizeString, isShallowEqual } from "../utils";
 import { SelectedShapeActions, ShapesSwitcher } from "./Actions";
 import { ErrorDialog } from "./ErrorDialog";
-import { ImageExportDialog } from "./ImageExportDialog";
 import { FixedSideContainer } from "./FixedSideContainer";
 import { HintViewer } from "./HintViewer";
 import { Island } from "./Island";
 import { LoadingMessage } from "./LoadingMessage";
 import { LockButton } from "./LockButton";
 import { MobileMenu } from "./MobileMenu";
-import { PasteChartDialog } from "./PasteChartDialog";
 import { Section } from "./Section";
-import { HelpDialog } from "./HelpDialog";
 import Stack from "./Stack";
 import { UserList } from "./UserList";
-import { JSONExportDialog } from "./JSONExportDialog";
 import { PenModeButton } from "./PenModeButton";
 import { trackEvent } from "../analytics";
 import { useDevice } from "./App";
@@ -60,10 +56,39 @@ import { mutateElement } from "../element/mutateElement";
 import { ShapeCache } from "../scene/ShapeCache";
 import Scene from "../scene/Scene";
 import { LaserPointerButton } from "./LaserPointerButton";
-import { MagicSettings } from "./MagicSettings";
 import { TTDDialog } from "./TTDDialog/TTDDialog";
-import { Stats } from "./Stats";
 import { actionToggleStats } from "../actions";
+import { lazyComponent, preloadWhenIdle } from "./lazyComponent";
+
+// Dialogs and panels that aren't needed for the first paint live in their own
+// chunks. They're preloaded once the browser is idle so they still open
+// instantly.
+const HelpDialog = lazyComponent(() =>
+  import("./HelpDialog").then((m) => m.HelpDialog),
+);
+const ImageExportDialog = lazyComponent(() =>
+  import("./ImageExportDialog").then((m) => m.ImageExportDialog),
+);
+const JSONExportDialog = lazyComponent(() =>
+  import("./JSONExportDialog").then((m) => m.JSONExportDialog),
+);
+const PasteChartDialog = lazyComponent(() =>
+  import("./PasteChartDialog").then((m) => m.PasteChartDialog),
+);
+const MagicSettings = lazyComponent(() =>
+  import("./MagicSettings").then((m) => m.MagicSettings),
+);
+const Stats = lazyComponent(() => import("./Stats").then((m) => m.Stats));
+
+export const LAZY_LAYER_UI_COMPONENTS = [
+  HelpDialog,
+  ImageExportDialog,
+  JSONExportDialog,
+  PasteChartDialog,
+  Stats,
+];
+
+let hasScheduledPreload = false;
 
 interface LayerUIProps {
   actionManager: ActionManager;
@@ -157,13 +182,23 @@ const LayerUI = ({
   const device = useDevice();
   const tunnels = useInitializeTunnels();
 
+  React.useEffect(() => {
+    if (!hasScheduledPreload) {
+      hasScheduledPreload = true;
+      preloadWhenIdle(LAZY_LAYER_UI_COMPONENTS);
+    }
+  }, []);
+
   const [eyeDropperState, setEyeDropperState] = useAtom(
     activeEyeDropperAtom,
     jotaiScope,
   );
 
   const renderJSONExportDialog = () => {
-    if (!UIOptions.canvasActions.export) {
+    if (
+      !UIOptions.canvasActions.export ||
+      appState.openDialog?.name !== "jsonExport"
+    ) {
       return null;
     }
 

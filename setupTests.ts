@@ -2,9 +2,18 @@
 import "vitest-canvas-mock";
 import "@testing-library/jest-dom";
 import fs from "fs";
-import { vi } from "vitest";
+import { beforeAll, vi } from "vitest";
 import polyfill from "./packages/excalidraw/polyfill";
 import { testPolyfills } from "./packages/excalidraw/tests/helpers/polyfills";
+
+// Code-split dialogs render synchronously once loaded; load them up front so
+// tests don't have to await them.
+beforeAll(async () => {
+  const { LAZY_LAYER_UI_COMPONENTS } = await import(
+    "./packages/excalidraw/components/LayerUI"
+  );
+  await Promise.all(LAZY_LAYER_UI_COMPONENTS.map((c) => c.preload()));
+});
 
 Object.assign(globalThis, testPolyfills);
 

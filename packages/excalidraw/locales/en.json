@@ -155,6 +155,8 @@
     "zoomToFitSelection": "Zoom to fit selection",
     "zoomToFit": "Zoom to fit all elements",
     "installPWA": "Install Draw locally (PWA)",
+    "refreshApp": "Refresh and get the latest version",
+    "notebooks": "A4 notebooks",
     "autoResize": "Enable text auto-resizing"
   },
   "library": {

@@ -8,6 +8,7 @@ import {
   EXCALIDRAW_SOURCE_URL,
 } from "../app_constants";
 import { LanguageList } from "../app-language/LanguageList";
+import { t } from "../../packages/excalidraw/i18n";
 
 export const AppMainMenu: React.FC<{
   theme: Theme | "system";
@@ -20,7 +21,7 @@ export const AppMainMenu: React.FC<{
           window.location.href = "/notes.html";
         }}
       >
-        A4 notebooks
+        {t("labels.notebooks")}
       </MainMenu.Item>
       <MainMenu.Separator />
       <MainMenu.DefaultItems.LoadScene />

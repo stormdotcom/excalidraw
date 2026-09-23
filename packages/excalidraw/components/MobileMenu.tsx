@@ -89,7 +89,6 @@ export const MobileMenu = ({
                     />
                   </Stack.Row>
                 </Island>
-                {renderTopRightUI && renderTopRightUI(true, appState)}
                 <div className="mobile-misc-tools-container">
                   {!appState.viewModeEnabled && (
                     <DefaultSidebarTriggerTunnel.Out />
@@ -113,6 +112,8 @@ export const MobileMenu = ({
                     title={t("toolBar.hand")}
                     isMobile
                   />
+                  {/* the toolbar already spans the full width on phones */}
+                  {renderTopRightUI && renderTopRightUI(true, appState)}
                 </div>
               </Stack.Row>
             </Stack.Col>

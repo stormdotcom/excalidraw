@@ -41,6 +41,10 @@ export default defineConfig({
         // app precache. en.json and percentages.json are needed for first load
         // or fallback hence not clubbing with locales so first load followed by offline mode works fine. This is how CRA used to work too.
         manualChunks(id) {
+          // rarely changes between deploys, so keep it cacheable on its own
+          if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) {
+            return "vendor-react";
+          }
           if (
             id.includes("packages/excalidraw/locales") &&
             id.match(/en.json/) === null
