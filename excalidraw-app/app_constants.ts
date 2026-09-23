@@ -20,5 +20,5 @@ export const STORAGE_KEYS = {
 
 export const APP_SOURCE_URL = "https://github.com/stormdotcom/excalidraw";
 export const EXCALIDRAW_SOURCE_URL = "https://github.com/excalidraw/excalidraw";
-export const AUTHOR_NAME = "ajmalnasumudeen";
+export const AUTHOR_NAME = "Ajmal Nasumudeen";
 export const AUTHOR_URL = "https://ajmalnasumudeen.in";

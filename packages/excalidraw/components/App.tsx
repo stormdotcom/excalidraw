@@ -89,6 +89,9 @@ import {
   supportsResizeObserver,
   DEFAULT_COLLISION_THRESHOLD,
   DEFAULT_TEXT_ALIGN,
+  DEFAULT_ELEMENT_PROPS,
+  STROKE_WIDTH_TOOLS,
+  getMinStrokeWidth,
 } from "../constants";
 import type { ExportedElements } from "../data";
 import { exportCanvas, loadFromBlob } from "../data";
@@ -2673,6 +2676,24 @@ class App extends React.Component<AppProps, AppState> {
 
   componentDidUpdate(prevProps: AppProps, prevState: AppState) {
     this.updateEmbeddables();
+
+    // each drawing tool remembers its own stroke width (tools never set
+    // before start from the default)
+    const toolType = this.state.activeTool.type;
+    if (
+      prevState.activeTool.type !== toolType &&
+      STROKE_WIDTH_TOOLS.has(toolType)
+    ) {
+      const toolStrokeWidth = Math.max(
+        this.state.strokeWidthByTool?.[toolType] ??
+          DEFAULT_ELEMENT_PROPS.strokeWidth,
+        getMinStrokeWidth(toolType),
+      );
+      if (toolStrokeWidth !== this.state.currentItemStrokeWidth) {
+        this.setState({ currentItemStrokeWidth: toolStrokeWidth });
+      }
+    }
+
     const elements = this.scene.getElementsIncludingDeleted();
     const elementsMap = this.scene.getElementsMapIncludingDeleted();
     const nonDeletedElementsMap = this.scene.getNonDeletedElementsMap();

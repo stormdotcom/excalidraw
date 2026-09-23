@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Draw — Hand-drawn whiteboard &amp; diagrams | ajmalnasumudeen</title>
+    <title>Draw — Hand-drawn whiteboard &amp; diagrams | Ajmal Nasumudeen</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, shrink-to-fit=no"
@@ -17,34 +17,34 @@
     <!-- Primary Meta Tags -->
     <meta
       name="title"
-      content="Draw — Hand-drawn whiteboard &amp; diagrams | ajmalnasumudeen"
+      content="Draw — Hand-drawn whiteboard &amp; diagrams | Ajmal Nasumudeen"
     />
     <meta
       name="description"
-      content="A free, private, hand-drawn style whiteboard for sketching diagrams, wireframes and ideas. Works on desktop, tablet and mobile. Redesigned by ajmalnasumudeen from the open-source Excalidraw."
+      content="A free, private, hand-drawn style whiteboard for sketching diagrams, wireframes and ideas. Works on desktop, tablet and mobile. Redesigned by Ajmal Nasumudeen from the open-source Excalidraw."
     />
     <meta
       name="keywords"
-      content="whiteboard, drawing, diagram, sketch, wireframe, flowchart, excalidraw, ajmalnasumudeen, malayalam"
+      content="whiteboard, drawing, diagram, sketch, wireframe, flowchart, excalidraw, Ajmal Nasumudeen, malayalam"
     />
-    <meta name="author" content="ajmalnasumudeen" />
+    <meta name="author" content="Ajmal Nasumudeen" />
     <meta
       name="image"
       content="https://draw.ajmalnasumudeen.in/og-image-3.png"
     />
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:site_name" content="Draw by ajmalnasumudeen" />
+    <meta property="og:site_name" content="Draw by Ajmal Nasumudeen" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://draw.ajmalnasumudeen.in/" />
     <meta
       property="og:title"
-      content="Draw — Hand-drawn whiteboard &amp; diagrams | ajmalnasumudeen"
+      content="Draw — Hand-drawn whiteboard &amp; diagrams | Ajmal Nasumudeen"
     />
     <meta property="og:image:alt" content="Draw — hand-drawn whiteboard" />
     <meta
       property="og:description"
-      content="A free, private, hand-drawn style whiteboard for sketching diagrams, wireframes and ideas. Works on desktop, tablet and mobile. Redesigned by ajmalnasumudeen from the open-source Excalidraw."
+      content="A free, private, hand-drawn style whiteboard for sketching diagrams, wireframes and ideas. Works on desktop, tablet and mobile. Redesigned by Ajmal Nasumudeen from the open-source Excalidraw."
     />
     <meta
       property="og:image"
@@ -56,11 +56,11 @@
     <meta property="twitter:url" content="https://draw.ajmalnasumudeen.in/" />
     <meta
       property="twitter:title"
-      content="Draw — Hand-drawn whiteboard &amp; diagrams | ajmalnasumudeen"
+      content="Draw — Hand-drawn whiteboard &amp; diagrams | Ajmal Nasumudeen"
     />
     <meta
       property="twitter:description"
-      content="A free, private, hand-drawn style whiteboard for sketching diagrams, wireframes and ideas. Works on desktop, tablet and mobile. Redesigned by ajmalnasumudeen from the open-source Excalidraw."
+      content="A free, private, hand-drawn style whiteboard for sketching diagrams, wireframes and ideas. Works on desktop, tablet and mobile. Redesigned by Ajmal Nasumudeen from the open-source Excalidraw."
     />
     <meta
       property="twitter:image"
@@ -199,6 +199,91 @@
         overflow: hidden;
       }
 
+      /* pre-JS loader — mirrors .draw-loader in packages/excalidraw/css/app.scss */
+      #root > .LoadingMessage {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        color: #1e1e1e;
+      }
+      html.dark #root > .LoadingMessage {
+        background: #121212;
+        color: #ced4da;
+      }
+      .draw-loader {
+        --draw-loader-color: #6965db;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        font-family: "Assistant", system-ui, -apple-system, "Segoe UI",
+          sans-serif;
+      }
+      html.dark .draw-loader {
+        --draw-loader-color: #a8a5ff;
+      }
+      .draw-loader__art {
+        width: 88px;
+        height: 88px;
+        overflow: visible;
+      }
+      .draw-loader__shape path {
+        fill: none;
+        stroke: var(--draw-loader-color);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: draw-loader-stroke 2.4s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+      }
+      .draw-loader__shape path + path {
+        stroke-width: 1.5;
+        opacity: 0.55;
+      }
+      .draw-loader__shape.s1 path {
+        animation-delay: 0.25s;
+      }
+      .draw-loader__shape.s2 path {
+        animation-delay: 0.5s;
+      }
+      .draw-loader__title {
+        margin-top: 0.4rem;
+        font-family: "Excalifont", "Virgil", "Segoe Print", "Comic Sans MS",
+          cursive;
+        font-size: 1.6rem;
+        line-height: 1;
+        color: var(--draw-loader-color);
+      }
+      .draw-loader__label {
+        font-size: 0.8rem;
+        opacity: 0.65;
+        letter-spacing: 0.02em;
+      }
+      @keyframes draw-loader-stroke {
+        0% {
+          stroke-dashoffset: 1;
+          opacity: 1;
+        }
+        45%,
+        78% {
+          stroke-dashoffset: 0;
+          opacity: 1;
+        }
+        100% {
+          stroke-dashoffset: 0;
+          opacity: 0;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .draw-loader__shape path {
+          animation: none;
+          stroke-dashoffset: 0;
+        }
+      }
+
       .visually-hidden {
         position: absolute !important;
         height: 1px;
@@ -237,7 +322,50 @@
     <header>
       <h1 class="visually-hidden">Draw — hand-drawn whiteboard</h1>
     </header>
-    <div id="root"></div>
+    <div id="root">
+      <div class="LoadingMessage">
+        <div class="draw-loader" role="status" aria-live="polite">
+          <svg
+            class="draw-loader__art"
+            viewBox="0 0 120 120"
+            aria-hidden="true"
+          >
+            <g class="draw-loader__shape s0">
+              <path
+                pathLength="1"
+                d="M18 66 C28 65 40 67 50 66 C51 76 49 88 50 98 C40 99 28 97 18 98 C17 88 19 76 18 66"
+              />
+              <path
+                pathLength="1"
+                d="M19 67 C29 67 39 65 49 67 C50 77 51 87 49 97 C39 98 29 99 19 97 C19 87 18 77 19 67"
+              />
+            </g>
+            <g class="draw-loader__shape s1">
+              <path
+                pathLength="1"
+                d="M62 22 C67 31 73 41 78 50 C68 51 57 50 46 51 C51 41 57 31 62 22"
+              />
+              <path
+                pathLength="1"
+                d="M61 23 C66 32 72 42 77 51 C67 50 57 52 47 50 C52 40 56 32 61 23"
+              />
+            </g>
+            <g class="draw-loader__shape s2">
+              <path
+                pathLength="1"
+                d="M86 68 C95 68 103 75 103 84 C103 93 95 100 86 100 C77 100 70 93 70 84 C70 75 77 68 86 68"
+              />
+              <path
+                pathLength="1"
+                d="M87 69 C96 70 102 76 102 85 C101 94 94 99 85 99 C76 99 71 92 71 83 C72 74 78 69 87 69"
+              />
+            </g>
+          </svg>
+          <div class="draw-loader__title">Draw</div>
+          <div class="draw-loader__label">Loading your canvas…</div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="index.tsx"></script>
   </body>
 </html>

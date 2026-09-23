@@ -154,7 +154,7 @@
     "zoomToFitViewport": "Zoom to fit in viewport",
     "zoomToFitSelection": "Zoom to fit selection",
     "zoomToFit": "Zoom to fit all elements",
-    "installPWA": "Install Excalidraw locally (PWA)",
+    "installPWA": "Install Draw locally (PWA)",
     "autoResize": "Enable text auto-resizing"
   },
   "library": {
@@ -218,7 +218,7 @@
     "confirmAddLibrary": "This will add {{numShapes}} shape(s) to your library. Are you sure?",
     "imageDoesNotContainScene": "This image does not seem to contain any scene data. Have you enabled scene embedding during export?",
     "cannotRestoreFromImage": "Scene couldn't be restored from this image file",
-    "invalidSceneUrl": "Couldn't import scene from the supplied URL. It's either malformed, or doesn't contain valid Excalidraw JSON data.",
+    "invalidSceneUrl": "Couldn't import scene from the supplied URL. It's either malformed, or doesn't contain valid drawing data.",
     "resetLibrary": "This will clear your library. Are you sure?",
     "removeItemsFromsLibrary": "Delete {{count}} item(s) from library?",
     "invalidEncryptionKey": "Encryption key must be of 22 characters. Live collaboration is disabled.",
@@ -240,7 +240,7 @@
       "line1": "Looks like you are using Brave browser with the <bold>Aggressively Block Fingerprinting</bold> setting enabled.",
       "line2": "This could result in breaking the <bold>Text Elements</bold> in your drawings.",
       "line3": "We strongly recommend disabling this setting. You can follow <link>these steps</link> on how to do so.",
-      "line4": "If disabling this setting doesn't fix the display of text elements, please open an <issueLink>issue</issueLink> on our GitHub, or write us on <discordLink>Discord</discordLink>"
+      "line4": "If disabling this setting doesn't fix the display of text elements, please open an <issueLink>issue</issueLink> on our GitHub."
     },
     "libraryElementTypeError": {
       "embeddable": "Embeddable elements cannot be added to the library.",
@@ -272,7 +272,7 @@
     "laser": "Laser pointer",
     "hand": "Hand (panning tool)",
     "extraTools": "More tools",
-    "mermaidToExcalidraw": "Mermaid to Excalidraw",
+    "mermaidToExcalidraw": "Mermaid to diagram",
     "magicSettings": "AI settings"
   },
   "element": {
@@ -457,8 +457,8 @@
     }
   },
   "encrypted": {
-    "tooltip": "Your drawings are end-to-end encrypted so Excalidraw's servers will never see them.",
-    "link": "Blog post on end-to-end encryption in Excalidraw"
+    "tooltip": "Your drawings are saved only in this browser. Nothing is uploaded to a server.",
+    "link": "Saved locally"
   },
   "stats": {
     "angle": "Angle",
@@ -560,9 +560,9 @@
     }
   },
   "mermaid": {
-    "title": "Mermaid to Excalidraw",
+    "title": "Mermaid to diagram",
     "button": "Insert",
-    "description": "Currently only <flowchartLink>Flowchart</flowchartLink>,<sequenceLink> Sequence, </sequenceLink> and <classLink>Class </classLink>Diagrams are supported. The other types will be rendered as image in Excalidraw.",
+    "description": "Currently only <flowchartLink>Flowchart</flowchartLink>,<sequenceLink> Sequence, </sequenceLink> and <classLink>Class </classLink>Diagrams are supported. The other types will be rendered as an image.",
     "syntax": "Mermaid Syntax",
     "preview": "Preview"
   },

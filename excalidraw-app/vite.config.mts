@@ -113,9 +113,9 @@ export default defineConfig({
       },
       manifest: {
         short_name: "Draw",
-        name: "Draw by ajmalnasumudeen",
+        name: "Draw by Ajmal Nasumudeen",
         description:
-          "A hand-drawn style whiteboard for sketching diagrams. Redesigned by ajmalnasumudeen from Excalidraw.",
+          "A hand-drawn style whiteboard for sketching diagrams. Redesigned by Ajmal Nasumudeen from Excalidraw.",
         icons: [
           {
             src: "android-chrome-192x192.png",

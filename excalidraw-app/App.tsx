@@ -51,6 +51,7 @@ import {
 import { AppMainMenu } from "./components/AppMainMenu";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
 import { AppFooter } from "./components/AppFooter";
+import { FirstVisitNameDialog } from "./components/FirstVisitNameDialog";
 import { Provider, useAtom } from "jotai";
 import { appJotaiStore } from "./app-jotai";
 
@@ -473,6 +474,7 @@ const ExcalidrawWrapper = () => {
           <OverwriteConfirmDialog.Actions.SaveToDisk />
         </OverwriteConfirmDialog>
         <AppFooter />
+        <FirstVisitNameDialog />
         {errorMessage && (
           <ErrorDialog onClose={() => setErrorMessage("")}>
             {errorMessage}

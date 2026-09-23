@@ -1,10 +1,8 @@
 import React from "react";
 import { LocalProfile } from "./LocalProfile";
-import { GithubIcon } from "../../packages/excalidraw/components/icons";
 import type { Theme } from "../../packages/excalidraw/element/types";
 import { MainMenu } from "../../packages/excalidraw/index";
 import {
-  APP_SOURCE_URL,
   AUTHOR_NAME,
   AUTHOR_URL,
   EXCALIDRAW_SOURCE_URL,
@@ -24,13 +22,6 @@ export const AppMainMenu: React.FC<{
       <MainMenu.DefaultItems.CommandPalette className="highlighted" />
       <MainMenu.DefaultItems.Help />
       <MainMenu.DefaultItems.ClearCanvas />
-      <MainMenu.Separator />
-      <MainMenu.ItemLink icon={GithubIcon} href={APP_SOURCE_URL}>
-        Source code
-      </MainMenu.ItemLink>
-      <MainMenu.ItemLink icon={GithubIcon} href={EXCALIDRAW_SOURCE_URL}>
-        Original Excalidraw
-      </MainMenu.ItemLink>
       <MainMenu.Separator />
       <MainMenu.DefaultItems.ToggleTheme
         allowSystemTheme

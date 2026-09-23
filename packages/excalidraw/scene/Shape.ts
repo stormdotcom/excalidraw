@@ -51,6 +51,9 @@ function adjustRoughness(element: ExcalidrawElement): number {
   return Math.min(roughness / (maxSize < 10 ? 3 : 2), 2.5);
 }
 
+const clampFillBase = (strokeWidth: number) =>
+  Math.min(Math.max(strokeWidth, 1), 8);
+
 export const generateRoughOptions = (
   element: ExcalidrawElement,
   continuousPath = false,
@@ -75,10 +78,12 @@ export const generateRoughOptions = (
     // when increasing strokeWidth, we must explicitly set fillWeight and
     // hachureGap because if not specified, roughjs uses strokeWidth to
     // calculate them (and we don't want the fills to be modified)
-    fillWeight: element.strokeWidth / 2,
-    hachureGap: element.strokeWidth * 4,
+    // (clamped: 0 would make roughjs hachure loop forever, and very wide
+    // strokes would otherwise blow the fill pattern up)
+    fillWeight: clampFillBase(element.strokeWidth) / 2,
+    hachureGap: clampFillBase(element.strokeWidth) * 4,
     roughness: adjustRoughness(element),
-    stroke: element.strokeColor,
+    stroke: element.strokeWidth > 0 ? element.strokeColor : "none",
     preserveVertices:
       continuousPath || element.roughness < ROUGHNESS.cartoonist,
   };

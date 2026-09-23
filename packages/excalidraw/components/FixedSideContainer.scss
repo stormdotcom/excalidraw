@@ -38,3 +38,11 @@
   z-index: 3;
 }
 */
+
+// iPhones (viewport-fit=cover): keep the mobile top toolbar clear of the notch
+// / Dynamic Island, including in landscape where it sits on the left or right
+.excalidraw--mobile .FixedSideContainer_side_top {
+  top: #{"max(var(--editor-container-padding), var(--sat, 0px))"};
+  left: #{"max(var(--editor-container-padding), var(--sal, 0px))"};
+  right: #{"max(var(--editor-container-padding), var(--sar, 0px))"};
+}

@@ -30,6 +30,15 @@ const saveLocalUser = (user: LocalUser) => {
   }
 };
 
+/** false on the very first visit (before a local user has been created) */
+export const hasLocalUser = (): boolean => {
+  try {
+    return !!localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_USER);
+  } catch {
+    return true; // storage unavailable — don't nag on every load
+  }
+};
+
 export const getLocalUser = (): LocalUser => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_USER);

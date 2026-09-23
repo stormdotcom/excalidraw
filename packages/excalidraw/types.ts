@@ -293,6 +293,8 @@ export interface AppState {
   currentItemBackgroundColor: string;
   currentItemFillStyle: ExcalidrawElement["fillStyle"];
   currentItemStrokeWidth: number;
+  /** last stroke width used with each tool, keyed by tool/element type */
+  strokeWidthByTool: Partial<Record<string, number>>;
   currentItemStrokeStyle: ExcalidrawElement["strokeStyle"];
   currentItemRoughness: number;
   currentItemOpacity: number;

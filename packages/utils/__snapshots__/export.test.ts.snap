@@ -93,6 +93,7 @@ exports[`exportToSvg > with default arguments 1`] = `
     "open": false,
     "panels": 3,
   },
+  "strokeWidthByTool": {},
   "suggestedBindings": [],
   "theme": "light",
   "toast": null,

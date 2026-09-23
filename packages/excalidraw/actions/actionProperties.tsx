@@ -61,7 +61,9 @@ import {
   FONT_FAMILY,
   ROUNDNESS,
   STROKE_WIDTH,
+  STROKE_WIDTH_RANGE,
   VERTICAL_ALIGN,
+  getMinStrokeWidth,
 } from "../constants";
 import {
   getNonDeletedElements,
@@ -433,58 +435,124 @@ export const actionChangeFillStyle = register({
   },
 });
 
+const clampStrokeWidth = (value: number, elementType: string) =>
+  Math.min(
+    Math.max(Math.round(value), getMinStrokeWidth(elementType)),
+    STROKE_WIDTH_RANGE.max,
+  );
+
 export const actionChangeStrokeWidth = register({
   name: "changeStrokeWidth",
   label: "labels.strokeWidth",
   trackEvent: false,
-  perform: (elements, appState, value) => {
+  perform: (elements, appState, value: number) => {
+    const selectedElements = getSelectedElements(
+      getNonDeletedElements(elements),
+      appState,
+    );
+    // remember the width for the tool(s) it was set for: the types of the
+    // selected elements, or the active drawing tool when nothing is selected
+    const toolTypes = selectedElements.length
+      ? selectedElements.map((element) => element.type)
+      : [appState.activeTool.type];
+    const strokeWidthByTool = { ...appState.strokeWidthByTool };
+    for (const type of toolTypes) {
+      strokeWidthByTool[type] = clampStrokeWidth(value, type);
+    }
+
     return {
       elements: changeProperty(elements, appState, (el) =>
         newElementWith(el, {
-          strokeWidth: value,
+          strokeWidth: clampStrokeWidth(value, el.type),
         }),
       ),
-      appState: { ...appState, currentItemStrokeWidth: value },
+      appState: {
+        ...appState,
+        currentItemStrokeWidth: clampStrokeWidth(
+          value,
+          appState.activeTool.type,
+        ),
+        strokeWidthByTool,
+      },
       storeAction: StoreAction.CAPTURE,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <fieldset>
-      <legend>{t("labels.strokeWidth")}</legend>
-      <ButtonIconSelect
-        group="stroke-width"
-        options={[
-          {
-            value: STROKE_WIDTH.thin,
-            text: t("labels.thin"),
-            icon: StrokeWidthBaseIcon,
-            testId: "strokeWidth-thin",
-          },
-          {
-            value: STROKE_WIDTH.bold,
-            text: t("labels.bold"),
-            icon: StrokeWidthBoldIcon,
-            testId: "strokeWidth-bold",
-          },
-          {
-            value: STROKE_WIDTH.extraBold,
-            text: t("labels.extraBold"),
-            icon: StrokeWidthExtraBoldIcon,
-            testId: "strokeWidth-extraBold",
-          },
-        ]}
-        value={getFormValue(
-          elements,
-          appState,
-          (element) => element.strokeWidth,
-          (element) => element.hasOwnProperty("strokeWidth"),
-          (hasSelection) =>
-            hasSelection ? null : appState.currentItemStrokeWidth,
-        )}
-        onChange={(value) => updateData(value)}
-      />
-    </fieldset>
-  ),
+  PanelComponent: ({ elements, appState, updateData }) => {
+    const selectedElements = getSelectedElements(
+      getNonDeletedElements(elements),
+      appState,
+    ).filter((element) => element.hasOwnProperty("strokeWidth"));
+    const value = selectedElements.length
+      ? selectedElements.every(
+          (element) => element.strokeWidth === selectedElements[0].strokeWidth,
+        )
+        ? selectedElements[0].strokeWidth
+        : null
+      : appState.currentItemStrokeWidth;
+    const min = Math.max(
+      STROKE_WIDTH_RANGE.min,
+      ...(selectedElements.length
+        ? selectedElements.map((element) => getMinStrokeWidth(element.type))
+        : [getMinStrokeWidth(appState.activeTool.type)]),
+    );
+
+    return (
+      <fieldset>
+        <legend>{t("labels.strokeWidth")}</legend>
+        <ButtonIconSelect
+          group="stroke-width"
+          options={[
+            {
+              value: STROKE_WIDTH.thin,
+              text: t("labels.thin"),
+              icon: StrokeWidthBaseIcon,
+              testId: "strokeWidth-thin",
+            },
+            {
+              value: STROKE_WIDTH.bold,
+              text: t("labels.bold"),
+              icon: StrokeWidthBoldIcon,
+              testId: "strokeWidth-bold",
+            },
+            {
+              value: STROKE_WIDTH.extraBold,
+              text: t("labels.extraBold"),
+              icon: StrokeWidthExtraBoldIcon,
+              testId: "strokeWidth-extraBold",
+            },
+          ]}
+          value={value}
+          onChange={(value) => updateData(value)}
+        />
+        <div className="stroke-width-slider">
+          <input
+            type="range"
+            min={min}
+            max={STROKE_WIDTH_RANGE.max}
+            step={1}
+            value={value ?? min}
+            aria-label={t("labels.strokeWidth")}
+            data-testid="strokeWidth-slider"
+            onChange={(event) => updateData(+event.target.value)}
+          />
+          <input
+            type="number"
+            className="stroke-width-slider__value"
+            min={min}
+            max={STROKE_WIDTH_RANGE.max}
+            value={value ?? ""}
+            placeholder="–"
+            aria-label={t("labels.strokeWidth")}
+            onChange={(event) => {
+              if (event.target.value !== "") {
+                updateData(+event.target.value);
+              }
+            }}
+          />
+        </div>
+      </fieldset>
+    );
+  },
 });
 
 export const actionChangeSloppiness = register({

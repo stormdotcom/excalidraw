@@ -4,22 +4,13 @@ import { KEYS } from "../keys";
 import { Dialog } from "./Dialog";
 import { getShortcutKey } from "../utils";
 import "./HelpDialog.scss";
-import { ExternalLinkIcon, GithubIcon } from "./icons";
+import { GithubIcon } from "./icons";
 import { probablySupportsClipboardBlob } from "../clipboard";
 import { isDarwin, isFirefox, isWindows } from "../constants";
 import { getShortcutFromShortcutName } from "../actions/shortcuts";
 
 const Header = () => (
   <div className="HelpDialog__header">
-    <a
-      className="HelpDialog__btn"
-      href="https://docs.excalidraw.com"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <div className="HelpDialog__link-icon">{ExternalLinkIcon}</div>
-      {t("helpDialog.documentation")}
-    </a>
     <a
       className="HelpDialog__btn"
       href="https://github.com/stormdotcom/excalidraw/issues"

@@ -161,6 +161,40 @@ body.excalidraw-cursor-resize * {
       width: 100%;
     }
 
+    // touch screens (phones, iPads): finger-sized slider thumbs
+    @media (pointer: coarse) {
+      input[type="range"] {
+        height: 1.75rem;
+      }
+    }
+
+    .stroke-width-slider {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+
+      input[type="range"] {
+        flex: 1;
+        min-width: 0;
+        accent-color: var(--color-primary);
+      }
+
+      &__value {
+        width: 2.75rem;
+        flex-shrink: 0;
+        box-sizing: border-box;
+        padding: 0.2rem 0.3rem;
+        border-radius: var(--border-radius-md);
+        border: 1px solid var(--default-border-color);
+        background: var(--input-bg-color);
+        color: var(--text-primary-color);
+        font-family: inherit;
+        font-size: 0.75rem;
+        text-align: center;
+      }
+    }
+
     legend {
       padding: 0;
     }

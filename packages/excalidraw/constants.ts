@@ -353,6 +353,31 @@ export const STROKE_WIDTH = {
   extraBold: 4,
 } as const;
 
+/** range of the stroke width slider */
+export const STROKE_WIDTH_RANGE = { min: 0, max: 100 } as const;
+
+/**
+ * Smallest stroke width per element type. Shapes accept 0 (no outline), but
+ * for linear elements and freedraw the stroke *is* the element, so 0 would
+ * make it invisible.
+ */
+/** drawing tools that each remember their own stroke width */
+export const STROKE_WIDTH_TOOLS: ReadonlySet<string> = new Set([
+  "rectangle",
+  "diamond",
+  "ellipse",
+  "arrow",
+  "line",
+  "freedraw",
+]);
+
+export const getMinStrokeWidth = (elementType: string) =>
+  elementType === "rectangle" ||
+  elementType === "diamond" ||
+  elementType === "ellipse"
+    ? 0
+    : 1;
+
 export const DEFAULT_ELEMENT_PROPS: {
   strokeColor: ExcalidrawElement["strokeColor"];
   backgroundColor: ExcalidrawElement["backgroundColor"];

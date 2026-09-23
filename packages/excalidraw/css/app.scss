@@ -18,22 +18,114 @@
   left: 0;
   z-index: 999;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-
-  .Spinner {
-    font-size: 2.8em;
-  }
-
-  .LoadingMessage-text {
-    margin-top: 1em;
-    font-size: 0.8em;
-  }
+  background-color: #fff;
+  color: #1e1e1e;
 }
 
 .LoadingMessage--dark {
   background-color: #121212;
   color: #ced4da;
+}
+
+.LoadingMessage--overlay {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(3px);
+  animation: draw-loader-fade-in 0.2s ease-out;
+}
+
+.theme--dark .LoadingMessage--overlay,
+.LoadingMessage--dark.LoadingMessage--overlay {
+  background-color: rgba(18, 18, 18, 0.7);
+}
+
+// NOTE: mirrored in excalidraw-app/index.html (shown before JS loads)
+.draw-loader {
+  --draw-loader-color: #6965db;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: "Assistant", system-ui, -apple-system, "Segoe UI", sans-serif;
+  user-select: none;
+
+  &__art {
+    width: 88px;
+    height: 88px;
+    overflow: visible;
+  }
+
+  &__shape path {
+    fill: none;
+    stroke: var(--draw-loader-color);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw-loader-stroke 2.4s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+  }
+
+  &__shape path + path {
+    stroke-width: 1.5;
+    opacity: 0.55;
+  }
+
+  &__shape.s1 path {
+    animation-delay: 0.25s;
+  }
+
+  &__shape.s2 path {
+    animation-delay: 0.5s;
+  }
+
+  &__title {
+    margin-top: 0.4rem;
+    font-family: "Excalifont", "Virgil", "Segoe Print", "Comic Sans MS", cursive;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--draw-loader-color);
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    opacity: 0.65;
+    letter-spacing: 0.02em;
+  }
+}
+
+.LoadingMessage--dark .draw-loader,
+.theme--dark .draw-loader {
+  --draw-loader-color: #a8a5ff;
+}
+
+@keyframes draw-loader-stroke {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  45%,
+  78% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes draw-loader-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draw-loader__shape path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
 }
