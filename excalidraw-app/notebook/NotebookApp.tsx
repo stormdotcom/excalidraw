@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import clsx from "clsx";
 import { createNotebook, createPage } from "./model";
 import type { Notebook, NotePage, Paper } from "./model";
 import { listNotebooks, saveNotebook } from "./storage";
@@ -14,6 +15,7 @@ import {
   FocusIcon,
   FullscreenIcon,
   MoonIcon,
+  NotebookIcon,
   PlusIcon,
   SunIcon,
 } from "./icons";
@@ -24,6 +26,23 @@ const canFullscreen = () =>
   !!document.fullscreenEnabled &&
   !!document.documentElement.requestFullscreen;
 
+const DrawLogoMark = () => (
+  <svg
+    className="notebook-logo-mark"
+    viewBox="10 14 100 94"
+    aria-hidden="true"
+    focusable="false"
+  >
+    {DRAW_LOGO_SHAPES.map((strokes, shapeIdx) => (
+      <g key={shapeIdx}>
+        {strokes.map((d, strokeIdx) => (
+          <path key={strokeIdx} d={d} />
+        ))}
+      </g>
+    ))}
+  </svg>
+);
+
 /** Same sketchy logo as the whiteboard; links back to it. */
 const DrawHomeLink = () => (
   <a
@@ -32,20 +51,18 @@ const DrawHomeLink = () => (
     title="Back to the Draw whiteboard"
     aria-label="Draw whiteboard"
   >
-    <svg viewBox="10 14 100 94" aria-hidden="true" focusable="false">
-      {DRAW_LOGO_SHAPES.map((strokes, shapeIdx) => (
-        <g key={shapeIdx}>
-          {strokes.map((d, strokeIdx) => (
-            <path key={strokeIdx} d={d} />
-          ))}
-        </g>
-      ))}
-    </svg>
+    <DrawLogoMark />
     <span>Draw</span>
   </a>
 );
 
-/** Icon button whose text label hides on narrow screens (kept for a11y). */
+const PAPERS: { value: Paper; label: string }[] = [
+  { value: "blank", label: "Blank" },
+  { value: "ruled", label: "Ruled" },
+  { value: "grid", label: "Grid" },
+];
+
+/** Icon-only button like the whiteboard tool bar; the label is for tooltips and screen readers. */
 const HeaderButton = ({
   icon,
   label,
@@ -65,7 +82,7 @@ const HeaderButton = ({
     onClick={onClick}
   >
     {icon}
-    <span className="notebook-button-label">{label}</span>
+    <span className="notebook-sr-only">{label}</span>
   </button>
 );
 
@@ -271,47 +288,71 @@ export default function NotebookApp() {
   };
 
   const page = active?.pages[pageIndex];
+  const setPaper = (paper: Paper) => {
+    const note = current.current!;
+    change(
+      {
+        ...note,
+        pages: note.pages.map((item, index) =>
+          index === pageIndex ? { ...item, paper } : item,
+        ),
+      },
+      true,
+    );
+  };
+  const startNewNote = () => {
+    const note = createNotebook();
+    openNote(note);
+    change(note);
+  };
+
   return (
     <div
-      className={`notebook notebook--${theme} ${
-        focus ? "notebook--focus" : ""
-      }`}
+      className={clsx("notebook excalidraw", {
+        "theme--dark": theme === "dark",
+        "notebook--focus": focus,
+      })}
       ref={root}
     >
       {!focus && (
         <header className="notebook-header">
-          <DrawHomeLink />
-          {active && (
-            <HeaderButton
-              icon={BackIcon}
-              label="All notes"
-              disabled={busy}
-              onClick={() =>
-                void navigate(() => {
-                  current.current = null;
-                  setActive(null);
-                })
-              }
-            />
-          )}
-          {active ? (
-            <input
-              className="notebook-title"
-              aria-label="Note title"
-              value={active.title}
-              maxLength={120}
-              onChange={(event) =>
-                current.current &&
-                change({ ...current.current, title: event.target.value }, true)
-              }
-            />
-          ) : (
-            <strong className="notebook-title">My notes</strong>
-          )}
+          <div className="notebook-island notebook-header__left">
+            <DrawHomeLink />
+            {active && (
+              <HeaderButton
+                icon={BackIcon}
+                label="All notes"
+                disabled={busy}
+                onClick={() =>
+                  void navigate(() => {
+                    current.current = null;
+                    setActive(null);
+                  })
+                }
+              />
+            )}
+            {active ? (
+              <input
+                className="notebook-title"
+                aria-label="Note title"
+                value={active.title}
+                maxLength={120}
+                onChange={(event) =>
+                  current.current &&
+                  change(
+                    { ...current.current, title: event.target.value },
+                    true,
+                  )
+                }
+              />
+            ) : (
+              <span className="notebook-title">My notes</span>
+            )}
+          </div>
           <span role="status" className="notebook-status">
             {status}
           </span>
-          <div className="notebook-actions">
+          <div className="notebook-island notebook-actions">
             {active && (
               <>
                 <HeaderButton
@@ -336,6 +377,7 @@ export default function NotebookApp() {
                     onClick={() => void toggleFullscreen()}
                   />
                 )}
+                <div className="notebook-divider" />
               </>
             )}
             <HeaderButton
@@ -348,7 +390,7 @@ export default function NotebookApp() {
       )}
       {error && (
         <div role="alert" className="notebook-error">
-          {error}{" "}
+          <span>{error}</span>
           {active && (
             <>
               <button onClick={() => void flush()}>Retry save</button>
@@ -359,80 +401,102 @@ export default function NotebookApp() {
       )}
       {!active ? (
         <main className="notebook-home">
-          <h1>A little space to think.</h1>
-          <p>
-            A4 pages for handwriting, sketches, and ideas. Your notes stay in
-            this browser.
+          <div className="notebook-home__logo">
+            <DrawLogoMark />
+            <span>Notes</span>
+          </div>
+          <p className="notebook-home__heading">
+            A4 pages for handwriting, sketches and ideas.
+            <br />
+            Everything stays in this browser.
           </p>
-          <button
-            className="notebook-primary"
-            aria-label="New note"
-            disabled={!ready || busy}
-            onClick={() => {
-              const note = createNotebook();
-              openNote(note);
-              change(note);
-            }}
-          >
-            {PlusIcon}
-            New note
-          </button>
-          <h2>Recent notes</h2>
-          {ready && !notes.length && (
-            <p>Create your first note and start writing.</p>
-          )}
-          <div className="notebook-list">
-            {notes.map((note) => (
-              <button key={note.id} onClick={() => openNote(note)}>
-                <strong>{note.title || "Untitled note"}</strong>
-                <span>
-                  {note.pages.length}{" "}
-                  {note.pages.length === 1 ? "page" : "pages"}
-                </span>
-                <time>{new Date(note.updatedAt).toLocaleDateString()}</time>
-              </button>
-            ))}
+          <div className="notebook-home__menu">
+            <button
+              className="notebook-menu-item notebook-menu-item--primary"
+              aria-label="New note"
+              disabled={!ready || busy}
+              onClick={startNewNote}
+            >
+              <span className="notebook-menu-item__icon">{PlusIcon}</span>
+              <span className="notebook-menu-item__text">New note</span>
+            </button>
+            {notes.length > 0 && (
+              <h2 className="notebook-home__section">Recent notes</h2>
+            )}
+            {ready && !notes.length && (
+              <p className="notebook-home__empty">
+                No notes yet. Create one to start writing.
+              </p>
+            )}
+            <div className="notebook-list">
+              {notes.map((note) => (
+                <button
+                  key={note.id}
+                  className="notebook-menu-item"
+                  onClick={() => openNote(note)}
+                >
+                  <span className="notebook-menu-item__icon">
+                    {NotebookIcon}
+                  </span>
+                  <span className="notebook-menu-item__text">
+                    {note.title || "Untitled note"}
+                  </span>
+                  <span className="notebook-menu-item__meta">
+                    {note.pages.length}{" "}
+                    {note.pages.length === 1 ? "page" : "pages"} ·{" "}
+                    <time>{new Date(note.updatedAt).toLocaleDateString()}</time>
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
           <p className="notebook-storage-note">
-            Clearing browser data removes local notes. Download backups to keep
-            a separate copy.
+            Clearing browser data removes local notes. Use Download backup
+            inside a note to keep a separate copy.
           </p>
         </main>
       ) : (
         page && (
           <div className="notebook-workspace">
             {!focus && (
-              <aside className="notebook-sidebar" aria-label="Pages">
+              <aside
+                className="notebook-island notebook-sidebar"
+                aria-label="Pages"
+              >
                 <div className="notebook-paper-options">
-                  <label htmlFor="notebook-paper">Paper</label>
-                  <select
-                    id="notebook-paper"
-                    value={page.paper}
-                    onChange={(event) => {
-                      const note = current.current!;
-                      change(
-                        {
-                          ...note,
-                          pages: note.pages.map((item, index) =>
-                            index === pageIndex
-                              ? { ...item, paper: event.target.value as Paper }
-                              : item,
-                          ),
-                        },
-                        true,
-                      );
-                    }}
+                  <span className="notebook-panel-label" id="notebook-paper">
+                    Paper
+                  </span>
+                  <div
+                    className="notebook-segmented"
+                    role="radiogroup"
+                    aria-labelledby="notebook-paper"
                   >
-                    <option value="blank">Blank</option>
-                    <option value="ruled">Ruled</option>
-                    <option value="grid">Grid</option>
-                  </select>
+                    {PAPERS.map((paper) => (
+                      <button
+                        key={paper.value}
+                        role="radio"
+                        aria-checked={page.paper === paper.value}
+                        aria-label={paper.label}
+                        title={`${paper.label} paper`}
+                        onClick={() => setPaper(paper.value)}
+                      >
+                        <span
+                          className={`notebook-page-preview notebook-page-preview--${paper.value}`}
+                        />
+                      </button>
+                    ))}
+                  </div>
                   <small>A4 · 210 × 297 mm</small>
                 </div>
+                <span className="notebook-panel-label notebook-panel-label--pages">
+                  Pages
+                </span>
                 <nav aria-label="Note pages">
                   {active.pages.map((item, index) => (
                     <button
                       key={item.id}
+                      className="notebook-page-button"
                       disabled={busy}
                       aria-current={index === pageIndex ? "page" : undefined}
                       onClick={() =>
@@ -452,6 +516,7 @@ export default function NotebookApp() {
                 <button
                   className="notebook-add-page"
                   aria-label="Add page"
+                  title="Add a new page after the last one"
                   disabled={busy}
                   onClick={() =>
                     void navigate(() => {
@@ -467,7 +532,8 @@ export default function NotebookApp() {
                     })
                   }
                 >
-                  <span aria-hidden="true">+</span> Add page
+                  {PlusIcon}
+                  <span>Add page</span>
                 </button>
               </aside>
             )}
