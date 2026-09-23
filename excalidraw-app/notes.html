@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, shrink-to-fit=no"
     />
     <!-- Notebook content and assets are local. Embeds and remote fonts are blocked. -->
     <meta
@@ -22,6 +22,8 @@
         width: 100%;
         height: 100%;
         overflow: hidden;
+        /* no rubber-band scrolling or pull-to-refresh while writing */
+        overscroll-behavior: none;
       }
     </style>
   </head>

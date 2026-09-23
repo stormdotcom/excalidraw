@@ -534,6 +534,11 @@
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  // iPad / Apple Pencil: no magnifier, callout or text selection when the
+  // pencil rests or long-presses on the page
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 
   .excalidraw {
     background: transparent;
@@ -967,5 +972,106 @@
 @media (prefers-reduced-motion: reduce) {
   .notebook * {
     transition: none !important;
+  }
+}
+
+// ------------------------------------------------------- open animation --
+// NoteOpenAnimation: a pencil writes a line, the title appears, then the
+// overlay fades to reveal the page. Timings match NOTE_OPEN_ANIMATION_MS.
+
+.notebook-workspace {
+  position: relative;
+}
+
+.notebook-open-animation {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: color-mix(in srgb, var(--nb-desk) 88%, transparent);
+  animation: nb-open-fade 1.1s ease forwards;
+
+  &__art {
+    width: min(20rem, 70vw);
+    overflow: visible;
+  }
+
+  &__line {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: nb-open-draw 0.8s cubic-bezier(0.45, 0, 0.35, 1) forwards;
+  }
+
+  &__pencil {
+    .nb-pencil-tip {
+      fill: #f3d9b1;
+    }
+    .nb-pencil-lead {
+      fill: var(--color-gray-80);
+    }
+    .nb-pencil-body {
+      fill: var(--color-primary);
+    }
+    .nb-pencil-band {
+      fill: var(--color-gray-40);
+    }
+    .nb-pencil-eraser {
+      fill: #f7a1b5;
+    }
+  }
+
+  &__title {
+    max-width: min(24rem, 80vw);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: "Excalifont", "Virgil", var(--ui-font);
+    font-size: 1.5rem;
+    color: var(--text-primary-color);
+    opacity: 0;
+    animation: nb-open-title 0.35s ease 0.35s forwards;
+  }
+}
+
+@keyframes nb-open-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nb-open-title {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nb-open-fade {
+  0%,
+  72% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notebook-open-animation {
+    display: none;
   }
 }

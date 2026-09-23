@@ -7510,7 +7510,11 @@ class App extends React.Component<AppProps, AppState> {
   private onPointerMoveFromPointerDownHandler(
     pointerDownState: PointerDownState,
   ) {
-    return withBatchedUpdatesThrottled((event: PointerEvent) => {
+    // Freehand input samples from every pointermove since the last processed
+    // one. Moves are handled once per animation frame, so without this the
+    // samples of skipped moves (fast Apple Pencil strokes) would be lost.
+    const pendingFreedrawSamples: PointerEvent[] = [];
+    const handleMove = withBatchedUpdatesThrottled((event: PointerEvent) => {
       // We need to initialize dragOffsetXY only after we've updated
       // `state.selectedElementIds` on pointerDown. Doing it here in pointerMove
       // event handler should hopefully ensure we're already working with
@@ -7897,22 +7901,38 @@ class App extends React.Component<AppProps, AppState> {
         }
 
         if (newElement.type === "freedraw") {
-          const points = newElement.points;
-          const dx = pointerCoords.x - newElement.x;
-          const dy = pointerCoords.y - newElement.y;
+          // every stylus sample since the last frame keeps fast
+          // handwriting smooth and accurate
+          const inputs = pendingFreedrawSamples.length
+            ? pendingFreedrawSamples.splice(0)
+            : [event];
 
-          const lastPoint = points.length > 0 && points[points.length - 1];
-          const discardPoint =
-            lastPoint && lastPoint[0] === dx && lastPoint[1] === dy;
+          const points = newElement.points.slice();
+          const pressures = newElement.pressures.slice();
+          for (const input of inputs) {
+            const coords =
+              input === event
+                ? pointerCoords
+                : viewportCoordsToSceneCoords(input, this.state);
+            const dx = coords.x - newElement.x;
+            const dy = coords.y - newElement.y;
 
-          if (!discardPoint) {
-            const pressures = newElement.simulatePressure
-              ? newElement.pressures
-              : [...newElement.pressures, event.pressure];
+            const lastPoint = points.length > 0 && points[points.length - 1];
+            if (lastPoint && lastPoint[0] === dx && lastPoint[1] === dy) {
+              continue;
+            }
+            points.push([dx, dy]);
+            if (!newElement.simulatePressure) {
+              pressures.push(input.pressure);
+            }
+          }
 
+          if (points.length !== newElement.points.length) {
             mutateElement(newElement, {
-              points: [...points, [dx, dy]],
-              pressures,
+              points,
+              pressures: newElement.simulatePressure
+                ? newElement.pressures
+                : pressures,
             });
           }
         } else if (isLinearElement(newElement)) {
@@ -8065,6 +8085,23 @@ class App extends React.Component<AppProps, AppState> {
           });
         }
       }
+    });
+
+    const collectSamples = (event: PointerEvent) => {
+      if (this.state.activeTool.type === "freedraw") {
+        // styluses sample several times per frame; the browser batches
+        // those samples into one pointermove
+        const samples =
+          typeof event.getCoalescedEvents === "function"
+            ? event.getCoalescedEvents()
+            : [];
+        pendingFreedrawSamples.push(...(samples.length ? samples : [event]));
+      }
+      handleMove(event);
+    };
+    return Object.assign(collectSamples, {
+      flush: handleMove.flush,
+      cancel: handleMove.cancel,
     });
   }
 

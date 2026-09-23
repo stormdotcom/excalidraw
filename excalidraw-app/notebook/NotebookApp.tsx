@@ -6,6 +6,7 @@ import { listNotebooks, saveNotebook } from "./storage";
 import { PageEditor } from "./PageEditor";
 import { useNotebookTheme } from "./theme";
 import { ExportDialog } from "./ExportDialog";
+import { NoteOpenAnimation } from "./NoteOpenAnimation";
 import { DRAW_LOGO_SHAPES } from "../../packages/excalidraw/components/LoadingMessage";
 import {
   BackIcon,
@@ -104,6 +105,11 @@ export default function NotebookApp() {
   const root = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useNotebookTheme();
   const [isExportOpen, setIsExportOpen] = useState(false);
+  // bumps on every note open so the intro animation replays
+  const [opening, setOpening] = useState<{ key: number; title: string } | null>(
+    null,
+  );
+  const endOpening = useCallback(() => setOpening(null), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -222,6 +228,10 @@ export default function NotebookApp() {
   }, [flush]);
 
   const openNote = (note: Notebook) => {
+    setOpening((old) => ({
+      key: (old?.key ?? 0) + 1,
+      title: note.title || "Untitled note",
+    }));
     current.current = note;
     setActive(note);
     setPageIndex(0);
@@ -536,6 +546,13 @@ export default function NotebookApp() {
                   <span>Add page</span>
                 </button>
               </aside>
+            )}
+            {opening && (
+              <NoteOpenAnimation
+                key={opening.key}
+                title={opening.title}
+                onDone={endOpening}
+              />
             )}
             <PageEditor
               key={page.id}

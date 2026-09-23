@@ -6,6 +6,9 @@ import { FONT_FAMILY } from "../../packages/excalidraw/constants";
 import NotebookApp from "./NotebookApp";
 
 window.EXCALIDRAW_ASSET_PATH = window.location.origin;
+// Batch canvas redraws to animation frames: keeps high-rate pencil input
+// (Apple Pencil, 120Hz screens) smooth, same as the whiteboard.
+window.EXCALIDRAW_THROTTLE_RENDER = true;
 // These two optional families use remote font files. Keep the notebook's
 // picker limited to the fonts shipped with the application.
 Fonts.registered.delete(FONT_FAMILY.Nunito);
