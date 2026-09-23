@@ -3,7 +3,7 @@ import { NotebookIcon } from "../notebook/icons";
 
 export const NOTES_URL = "/notes.html";
 
-/** Top-right shortcut from the whiteboard to the A4 notebooks page. */
+/** Top-right shortcut from the whiteboard to the notes page. */
 export const NotesButton = () => {
   const label = t("labels.notebooks");
 

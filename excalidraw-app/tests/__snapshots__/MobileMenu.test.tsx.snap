@@ -126,7 +126,7 @@ exports[`Test MobileMenu > should initialize with welcome screen and hide once u
       <div
         class="welcome-screen-menu-item__text"
       >
-        A4 notebooks
+        Take notes
       </div>
     </button>
     <button
