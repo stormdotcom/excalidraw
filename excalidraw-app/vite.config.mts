@@ -57,8 +57,10 @@ export default defineConfig({
       eslint:
         envVars.VITE_APP_ENABLE_ESLINT === "false"
           ? undefined
-          : { lintCommand:
-            'eslint --ignore-path ../.eslintignore "./**/*.{js,ts,tsx}"' },
+          : {
+              lintCommand:
+                'eslint --ignore-path ../.eslintignore "./**/*.{js,ts,tsx}"',
+            },
       overlay: {
         initialIsOpen: envVars.VITE_APP_COLLAPSE_OVERLAY === "false",
         badgeStyle: "margin-bottom: 4rem; margin-left: 1rem",
@@ -167,38 +169,6 @@ export default defineConfig({
             ],
           },
         },
-        screenshots: [
-          {
-            src: "/screenshots/virtual-whiteboard.png",
-            type: "image/png",
-            sizes: "462x945",
-          },
-          {
-            src: "/screenshots/wireframe.png",
-            type: "image/png",
-            sizes: "462x945",
-          },
-          {
-            src: "/screenshots/illustration.png",
-            type: "image/png",
-            sizes: "462x945",
-          },
-          {
-            src: "/screenshots/shapes.png",
-            type: "image/png",
-            sizes: "462x945",
-          },
-          {
-            src: "/screenshots/collaboration.png",
-            type: "image/png",
-            sizes: "462x945",
-          },
-          {
-            src: "/screenshots/export.png",
-            type: "image/png",
-            sizes: "462x945",
-          },
-        ],
       },
     }),
     createHtmlPlugin({
