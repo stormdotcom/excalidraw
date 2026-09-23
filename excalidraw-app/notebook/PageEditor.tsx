@@ -12,15 +12,18 @@ import type {
   BinaryFiles,
 } from "../../packages/excalidraw/types";
 import { A4 } from "./model";
+import type { ResolvedTheme } from "./theme";
 import type { NotePage } from "./model";
 
 export const PageEditor = ({
   page,
   focus,
+  theme,
   onChange,
 }: {
   page: NotePage;
   focus: boolean;
+  theme: ResolvedTheme;
   onChange: (page: NotePage) => void;
 }) => {
   const [api, setAPI] = useState<ExcalidrawImperativeAPI>();
@@ -117,11 +120,13 @@ export const PageEditor = ({
             height="28"
             patternUnits="userSpaceOnUse"
           >
-            <path d="M0 27.5H24" stroke="#dce4ec" />
-            {page.paper === "grid" && <path d="M23.5 0V28" stroke="#dce4ec" />}
+            <path d="M0 27.5H24" className="notebook-paper__rule" />
+            {page.paper === "grid" && (
+              <path d="M23.5 0V28" className="notebook-paper__rule" />
+            )}
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="white" />
+        <rect width="100%" height="100%" className="notebook-paper__sheet" />
         {page.paper !== "blank" && (
           <rect
             x="36"
@@ -137,7 +142,7 @@ export const PageEditor = ({
           width="793"
           height="1122"
           fill="none"
-          stroke="#b9c6d2"
+          className="notebook-paper__edge"
         />
       </svg>
       <Excalidraw
@@ -145,7 +150,7 @@ export const PageEditor = ({
         initialData={initialData.current}
         onChange={handleChange}
         zenModeEnabled={focus}
-        theme="light"
+        theme={theme}
         aiEnabled={false}
         validateEmbeddable={false}
         onLinkOpen={(_, event) => event.preventDefault()}

@@ -3,7 +3,69 @@ import { createNotebook, createPage } from "./model";
 import type { Notebook, NotePage, Paper } from "./model";
 import { listNotebooks, saveNotebook } from "./storage";
 import { PageEditor } from "./PageEditor";
+import { useNotebookTheme } from "./theme";
+import { DRAW_LOGO_SHAPES } from "../../packages/excalidraw/components/LoadingMessage";
+import {
+  BackIcon,
+  DownloadIcon,
+  ExitFullscreenIcon,
+  FocusIcon,
+  FullscreenIcon,
+  MoonIcon,
+  PlusIcon,
+  SunIcon,
+} from "./icons";
 import "./notebook.scss";
+
+const canFullscreen = () =>
+  typeof document !== "undefined" &&
+  !!document.fullscreenEnabled &&
+  !!document.documentElement.requestFullscreen;
+
+/** Same sketchy logo as the whiteboard; links back to it. */
+const DrawHomeLink = () => (
+  <a
+    className="notebook-logo"
+    href="/"
+    title="Back to the Draw whiteboard"
+    aria-label="Draw whiteboard"
+  >
+    <svg viewBox="10 14 100 94" aria-hidden="true" focusable="false">
+      {DRAW_LOGO_SHAPES.map((strokes, shapeIdx) => (
+        <g key={shapeIdx}>
+          {strokes.map((d, strokeIdx) => (
+            <path key={strokeIdx} d={d} />
+          ))}
+        </g>
+      ))}
+    </svg>
+    <span>Draw</span>
+  </a>
+);
+
+/** Icon button whose text label hides on narrow screens (kept for a11y). */
+const HeaderButton = ({
+  icon,
+  label,
+  onClick,
+  disabled,
+}: {
+  icon: JSX.Element;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+}) => (
+  <button
+    className="notebook-header-button"
+    title={label}
+    aria-label={label}
+    disabled={disabled}
+    onClick={onClick}
+  >
+    {icon}
+    <span className="notebook-button-label">{label}</span>
+  </button>
+);
 
 export default function NotebookApp() {
   const [notes, setNotes] = useState<Notebook[]>([]);
@@ -21,6 +83,7 @@ export default function NotebookApp() {
   const timer = useRef<ReturnType<typeof setTimeout>>();
   const pending = useRef<Promise<boolean> | null>(null);
   const root = useRef<HTMLDivElement>(null);
+  const { theme, toggleTheme } = useNotebookTheme();
 
   useEffect(() => {
     let cancelled = false;
@@ -206,11 +269,19 @@ export default function NotebookApp() {
 
   const page = active?.pages[pageIndex];
   return (
-    <div className={`notebook ${focus ? "notebook--focus" : ""}`} ref={root}>
+    <div
+      className={`notebook notebook--${theme} ${
+        focus ? "notebook--focus" : ""
+      }`}
+      ref={root}
+    >
       {!focus && (
         <header className="notebook-header">
-          {active ? (
-            <button
+          <DrawHomeLink />
+          {active && (
+            <HeaderButton
+              icon={BackIcon}
+              label="All notes"
               disabled={busy}
               onClick={() =>
                 void navigate(() => {
@@ -218,14 +289,11 @@ export default function NotebookApp() {
                   setActive(null);
                 })
               }
-            >
-              All notes
-            </button>
-          ) : (
-            <a href="/">Whiteboard</a>
+            />
           )}
           {active ? (
             <input
+              className="notebook-title"
               aria-label="Note title"
               value={active.title}
               maxLength={120}
@@ -235,18 +303,39 @@ export default function NotebookApp() {
               }
             />
           ) : (
-            <strong>My notes</strong>
+            <strong className="notebook-title">My notes</strong>
           )}
-          <span role="status">{status}</span>
-          {active && (
-            <>
-              <button onClick={downloadBackup}>Download backup</button>
-              <button onClick={() => setFocus(true)}>Focus</button>
-              <button onClick={() => void toggleFullscreen()}>
-                {fullscreen ? "Exit full screen" : "Full screen"}
-              </button>
-            </>
-          )}
+          <span role="status" className="notebook-status">
+            {status}
+          </span>
+          <div className="notebook-actions">
+            {active && (
+              <>
+                <HeaderButton
+                  icon={DownloadIcon}
+                  label="Download backup"
+                  onClick={downloadBackup}
+                />
+                <HeaderButton
+                  icon={FocusIcon}
+                  label="Focus"
+                  onClick={() => setFocus(true)}
+                />
+                {canFullscreen() && (
+                  <HeaderButton
+                    icon={fullscreen ? ExitFullscreenIcon : FullscreenIcon}
+                    label={fullscreen ? "Exit full screen" : "Full screen"}
+                    onClick={() => void toggleFullscreen()}
+                  />
+                )}
+              </>
+            )}
+            <HeaderButton
+              icon={theme === "dark" ? SunIcon : MoonIcon}
+              label={theme === "dark" ? "Light mode" : "Dark mode"}
+              onClick={toggleTheme}
+            />
+          </div>
         </header>
       )}
       {error && (
@@ -269,6 +358,7 @@ export default function NotebookApp() {
           </p>
           <button
             className="notebook-primary"
+            aria-label="New note"
             disabled={!ready || busy}
             onClick={() => {
               const note = createNotebook();
@@ -276,6 +366,7 @@ export default function NotebookApp() {
               change(note);
             }}
           >
+            {PlusIcon}
             New note
           </button>
           <h2>Recent notes</h2>
@@ -351,6 +442,8 @@ export default function NotebookApp() {
                   ))}
                 </nav>
                 <button
+                  className="notebook-add-page"
+                  aria-label="Add page"
                   disabled={busy}
                   onClick={() =>
                     void navigate(() => {
@@ -366,7 +459,7 @@ export default function NotebookApp() {
                     })
                   }
                 >
-                  + Add page
+                  <span aria-hidden="true">+</span> Add page
                 </button>
               </aside>
             )}
@@ -374,6 +467,7 @@ export default function NotebookApp() {
               key={page.id}
               page={page}
               focus={focus}
+              theme={theme}
               onChange={updatePage}
             />
           </div>

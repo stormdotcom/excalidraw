@@ -157,6 +157,7 @@
     "installPWA": "Install Draw locally (PWA)",
     "refreshApp": "Refresh and get the latest version",
     "notebooks": "A4 notebooks",
+    "notes": "Notes",
     "autoResize": "Enable text auto-resizing"
   },
   "library": {

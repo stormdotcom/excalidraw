@@ -52,6 +52,7 @@ import { AppMainMenu } from "./components/AppMainMenu";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
 import { AppFooter } from "./components/AppFooter";
 import { RefreshAppButton } from "./components/RefreshAppButton";
+import { NotesButton } from "./components/NotesButton";
 import { hasLocalUser } from "./data/localUser";
 import { lazyComponent } from "../packages/excalidraw/components/lazyComponent";
 import { Provider, useAtom } from "jotai";
@@ -482,9 +483,12 @@ const ExcalidrawWrapper = () => {
         langCode={langCode}
         aiEnabled={false}
         renderCustomStats={renderCustomStats}
-        renderTopRightUI={(isMobile) =>
-          isMobile || isTouchDevice() ? <RefreshAppButton /> : null
-        }
+        renderTopRightUI={(isMobile) => (
+          <>
+            <NotesButton />
+            {(isMobile || isTouchDevice()) && <RefreshAppButton />}
+          </>
+        )}
         detectScroll={false}
         handleKeyboardGlobally={true}
         autoFocus={true}

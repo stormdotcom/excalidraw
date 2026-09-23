@@ -1,14 +1,60 @@
+// Offline A4 notebook — uses the same palette, font and light/dark theme as
+// the Draw whiteboard (packages/excalidraw/css/theme.scss).
+
 .notebook {
-  --note-ink: #24364b;
-  --note-accent: #295aa3;
+  --nb-primary: #6965db;
+  --nb-primary-hover: #5753d0;
+  --nb-primary-light: #e3e2fe;
+  --nb-on-primary: #ffffff;
+  --nb-desk: #f4f4f8;
+  --nb-surface: #ffffff;
+  --nb-surface-hover: #f1f0ff;
+  --nb-border: #e4e4eb;
+  --nb-text: #1b1b1f;
+  --nb-muted: #6b6b76;
+  --nb-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 14px rgba(0, 0, 0, 0.05);
+  --nb-paper: #ffffff;
+  --nb-paper-rule: #dde3ea;
+  --nb-paper-edge: #c9d1db;
+  --nb-error-bg: #fff0e2;
+  --nb-error-text: #733b10;
+  --nb-radius: 10px;
+  --nb-safe-top: env(safe-area-inset-top, 0px);
+  --nb-safe-right: env(safe-area-inset-right, 0px);
+  --nb-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nb-safe-left: env(safe-area-inset-left, 0px);
+
   height: 100%;
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: #edf1f5;
-  color: var(--note-ink);
-  font: 16px "Assistant", system-ui, sans-serif;
+  background: var(--nb-desk);
+  color: var(--nb-text);
+  font: 16px/1.4 "Assistant", system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
 
+  &--dark {
+    --nb-primary: #a8a5ff;
+    --nb-primary-hover: #bbb8ff;
+    --nb-primary-light: #3a3861;
+    --nb-on-primary: #121212;
+    --nb-desk: #121212;
+    --nb-surface: #232329;
+    --nb-surface-hover: #2e2d39;
+    --nb-border: #34333f;
+    --nb-text: #e3e3e8;
+    --nb-muted: #a3a3ae;
+    --nb-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.3);
+    // dark paper: the editor renders ink inverted in dark mode
+    --nb-paper: #1e1e24;
+    --nb-paper-rule: #34343e;
+    --nb-paper-edge: #3c3c48;
+    --nb-error-bg: #3b2616;
+    --nb-error-text: #ffc99a;
+  }
+
+  // controls outside the Excalidraw editor
   > header,
   .notebook-sidebar,
   .notebook-home,
@@ -22,231 +68,519 @@
       font: inherit;
       color: inherit;
     }
+
     button,
     select,
     a {
-      min-height: 44px;
-      border: 1px solid #c8d2de;
-      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-sizing: border-box;
+      min-height: 44px; // Apple's minimum touch target
+      border: 1px solid var(--nb-border);
+      border-radius: var(--nb-radius);
       padding: 8px 14px;
-      background: white;
+      background: var(--nb-surface);
+      text-decoration: none;
       cursor: pointer;
+      touch-action: manipulation;
+      transition: background-color 0.12s, border-color 0.12s;
     }
-    button:hover,
-    a:hover {
-      background: #e7eef9;
+
+    @media (hover: hover) {
+      button:hover:not(:disabled),
+      a:hover,
+      select:hover {
+        background: var(--nb-surface-hover);
+        border-color: var(--nb-primary);
+      }
     }
+
+    button:active:not(:disabled) {
+      background: var(--nb-primary-light);
+    }
+
     button:disabled {
       opacity: 0.5;
       cursor: wait;
     }
+
     :focus-visible {
-      outline: 3px solid var(--note-accent);
+      outline: 2px solid var(--nb-primary);
       outline-offset: 2px;
     }
   }
+
+  .notebook-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
 }
+
+// ---------------------------------------------------------------- header --
 
 .notebook-header {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 12px 18px;
-  background: white;
-  border-bottom: 1px solid #c8d2de;
-  input {
-    width: min(24vw, 300px);
-    min-width: 120px;
+  gap: 8px;
+  padding: calc(8px + var(--nb-safe-top)) calc(12px + var(--nb-safe-right)) 8px
+    calc(12px + var(--nb-safe-left));
+  background: var(--nb-surface);
+  border-bottom: 1px solid var(--nb-border);
+  box-shadow: var(--nb-shadow);
+  position: relative;
+  z-index: 5;
+
+  .notebook-logo {
     border: 0;
-    padding: 10px;
+    padding: 4px 8px;
+    color: var(--nb-primary);
+    font-family: "Excalifont", "Virgil", "Assistant", cursive;
+    font-size: 22px;
+    font-weight: 600;
+
+    svg {
+      width: 30px;
+      height: 30px;
+
+      path {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 3.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      g path:nth-child(2) {
+        stroke-width: 2;
+        opacity: 0.55;
+      }
+    }
+  }
+
+  .notebook-title {
+    flex: 0 1 300px;
+    min-width: 80px;
+    font-weight: 600;
+    font-size: 17px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  input.notebook-title {
+    border: 1px solid transparent;
+    border-radius: var(--nb-radius);
+    padding: 9px 10px;
     background: transparent;
-    font-weight: 600 !important;
-  }
-  a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
+    min-height: 44px;
     box-sizing: border-box;
+
+    &:hover {
+      border-color: var(--nb-border);
+    }
+
+    &:focus {
+      border-color: var(--nb-primary);
+      background: var(--nb-desk);
+      outline: none;
+    }
   }
-  [role="status"] {
+
+  .notebook-status {
+    flex: 1 1 auto;
+    min-width: 0;
     font-size: 13px;
-    margin-left: auto;
-    color: #53677c;
+    color: var(--nb-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+  }
+
+  .notebook-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .notebook-header-button {
+    padding: 8px 12px;
   }
 }
+
+// ------------------------------------------------------------------ home --
+
 .notebook-home {
-  width: min(820px, calc(100% - 48px));
+  width: min(820px, 100%);
+  box-sizing: border-box;
   margin: 0 auto;
-  padding: 60px 0 24px;
+  padding: 56px calc(24px + var(--nb-safe-right))
+    calc(24px + var(--nb-safe-bottom)) calc(24px + var(--nb-safe-left));
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
+
   h1 {
     font-size: clamp(28px, 4vw, 42px);
-    font-weight: 600;
+    font-weight: 700;
     margin: 0;
+    color: var(--nb-primary);
   }
+
   p {
     max-width: 60ch;
     line-height: 1.6;
+    color: var(--nb-muted);
   }
+
   h2 {
     font-size: 20px;
-    margin-top: 44px;
+    margin: 44px 0 12px;
   }
+
   button.notebook-primary {
-    color: white;
-    background: var(--note-accent);
-    border-color: var(--note-accent);
+    color: var(--nb-on-primary);
+    background: var(--nb-primary);
+    border-color: var(--nb-primary);
+    font-weight: 600;
+    padding: 10px 20px;
+
+    @media (hover: hover) {
+      &:hover:not(:disabled) {
+        background: var(--nb-primary-hover);
+        border-color: var(--nb-primary-hover);
+      }
+    }
   }
 }
+
 .notebook-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+
   button {
-    display: flex;
+    justify-content: flex-start;
     text-align: left;
-    align-items: center;
-    gap: 24px;
+    gap: 16px;
+    padding: 14px 16px;
+    min-height: 64px;
+    box-shadow: var(--nb-shadow);
   }
+
   strong {
     margin-right: auto;
     overflow-wrap: anywhere;
   }
+
   span,
   time {
     white-space: nowrap;
     font-size: 14px;
+    color: var(--nb-muted);
   }
 }
+
 .notebook-storage-note {
-  color: #53677c;
   font-size: 14px;
   margin-top: 40px;
 }
+
+// ------------------------------------------------------------- workspace --
+
 .notebook-workspace {
   display: flex;
   flex: 1;
   min-height: 0;
 }
+
 .notebook-sidebar {
-  width: 164px;
+  width: 172px;
   flex-shrink: 0;
   overflow: auto;
-  padding: 16px;
+  padding: 16px 14px calc(16px + var(--nb-safe-bottom))
+    calc(14px + var(--nb-safe-left));
   box-sizing: border-box;
-  border-right: 1px solid #c8d2de;
+  background: var(--nb-surface);
+  border-right: 1px solid var(--nb-border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
   nav {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin: 16px 0;
   }
+
   nav button {
-    display: flex;
-    align-items: center;
+    justify-content: flex-start;
     gap: 12px;
-    padding: 8px !important;
+    padding: 8px;
   }
+
   [aria-current="page"] {
-    border-color: var(--note-accent) !important;
-    background: #e0eafa !important;
+    border-color: var(--nb-primary);
+    background: var(--nb-primary-light);
+    font-weight: 600;
+  }
+
+  .notebook-add-page {
+    color: var(--nb-primary);
+    border-style: dashed;
+    font-weight: 600;
   }
 }
+
 .notebook-paper-options {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--nb-muted);
+  }
+
+  select {
+    font-size: 16px; // stops iOS zooming in on focus
+    justify-content: flex-start;
+  }
+
   small {
     font-size: 12px;
+    color: var(--nb-muted);
   }
 }
+
 .notebook-page-preview {
   width: 27px;
   height: 38px;
+  flex-shrink: 0;
   display: block;
-  background: white;
-  border: 1px solid #b9c6d2;
+  background: var(--nb-paper);
+  border: 1px solid var(--nb-paper-edge);
+  border-radius: 2px;
 }
-.notebook-page-preview--ruled,
+
+.notebook-page-preview--ruled {
+  background: repeating-linear-gradient(
+    var(--nb-paper) 0 6px,
+    var(--nb-paper-rule) 6px 7px
+  );
+}
+
 .notebook-page-preview--grid {
-  background: repeating-linear-gradient(white 0 6px, #dce4ec 6px 7px);
+  background: repeating-linear-gradient(
+      var(--nb-paper-rule) 0 1px,
+      transparent 1px 7px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--nb-paper-rule) 0 1px,
+      transparent 1px 7px
+    ),
+    var(--nb-paper);
 }
+
 .notebook-editor {
   flex: 1;
   min-width: 0;
   position: relative;
   overflow: hidden;
   isolation: isolate;
+
   .excalidraw {
     background: transparent;
+    --color-primary: var(--nb-primary);
   }
 }
+
 .notebook-paper {
   position: absolute;
   top: 0;
   left: 0;
   transform-origin: 0 0;
   pointer-events: none;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.12));
+
+  &__sheet {
+    fill: var(--nb-paper);
+  }
+
+  &__rule {
+    stroke: var(--nb-paper-rule);
+  }
+
+  &__edge {
+    stroke: var(--nb-paper-edge);
+  }
 }
+
 .notebook-fit,
 .notebook-exit-focus {
   position: absolute;
-  right: 18px;
-  bottom: 64px;
+  right: calc(18px + var(--nb-safe-right));
+  bottom: calc(72px + var(--nb-safe-bottom));
   z-index: 10;
-  font: inherit;
-  color: #24364b;
-  background: white;
-  border: 1px solid #b9c6d2;
-  border-radius: 8px;
-  padding: 10px 14px;
-  min-height: 44px;
-  cursor: pointer;
+  box-shadow: var(--nb-shadow);
 }
+
 .notebook-exit-focus {
-  top: 16px;
+  top: calc(12px + var(--nb-safe-top));
   bottom: auto;
+  color: var(--nb-on-primary) !important;
+  background: var(--nb-primary) !important;
+  border-color: var(--nb-primary) !important;
 }
+
 .notebook-error {
-  padding: 12px 18px;
-  background: #fff0e2;
-  color: #733b10;
+  padding: 10px 18px;
+  background: var(--nb-error-bg);
+  color: var(--nb-error-text);
   z-index: 12;
-  button {
-    margin-left: 12px;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
-@media (max-width: 760px) {
-  .notebook-header {
-    padding: 8px;
-    gap: 6px;
-    input {
-      flex: 1;
-    }
-    [role="status"] {
-      order: 2;
-      width: 100%;
-    }
-  }
-  .notebook-sidebar {
-    width: 104px;
-    padding: 8px;
-    nav button {
-      flex-direction: column;
-      gap: 4px;
-    }
-    select {
-      padding: 8px !important;
-    }
-  }
-  .notebook-list button {
-    gap: 12px;
-    time {
+
+// ------------------------------------------------------- tablets (iPad) --
+
+@media (max-width: 1024px) {
+  .notebook-header .notebook-header-button {
+    padding: 8px 10px;
+
+    .notebook-button-label {
       display: none;
     }
   }
+
+  .notebook-sidebar {
+    width: 148px;
+  }
+}
+
+// ------------------------------------------------ phones (iPhone, Android) --
+
+@media (max-width: 760px) {
+  .notebook-header {
+    flex-wrap: wrap;
+    row-gap: 4px;
+    padding-left: calc(6px + var(--nb-safe-left));
+    padding-right: calc(6px + var(--nb-safe-right));
+
+    .notebook-logo {
+      padding: 4px;
+
+      span {
+        display: none;
+      }
+    }
+
+    .notebook-title {
+      flex: 1 1 0;
+    }
+
+    .notebook-status {
+      order: 10;
+      flex-basis: 100%;
+      text-align: left;
+      padding: 0 6px;
+      font-size: 12px;
+    }
+
+    .notebook-actions {
+      gap: 2px;
+    }
+
+    .notebook-header-button {
+      border-color: transparent;
+      padding: 8px;
+      min-width: 44px;
+    }
+  }
+
+  // pages become a horizontal strip under the header
+  .notebook-workspace {
+    flex-direction: column;
+  }
+
+  .notebook-sidebar {
+    width: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px calc(8px + var(--nb-safe-right)) 8px
+      calc(8px + var(--nb-safe-left));
+    border-right: 0;
+    border-bottom: 1px solid var(--nb-border);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    nav {
+      flex-direction: row;
+      gap: 6px;
+    }
+
+    nav button {
+      gap: 6px;
+      padding: 6px 10px;
+      white-space: nowrap;
+    }
+
+    .notebook-add-page {
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+  }
+
+  .notebook-paper-options {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+
+    label,
+    small {
+      display: none;
+    }
+
+    select {
+      padding: 6px 10px;
+    }
+  }
+
+  .notebook-page-preview {
+    width: 18px;
+    height: 25px;
+  }
+
   .notebook-home {
     padding-top: 28px;
+  }
+
+  .notebook-list {
+    grid-template-columns: 1fr;
+  }
+
+  // keep clear of the editor's bottom toolbar on phones
+  .notebook-fit {
+    bottom: calc(84px + var(--nb-safe-bottom));
+    right: calc(10px + var(--nb-safe-right));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notebook * {
+    transition: none !important;
   }
 }

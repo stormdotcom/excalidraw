@@ -38,7 +38,7 @@ describe("notebook navigation", () => {
   it("flushes edits before switching pages and keeps the earlier page", async () => {
     await startNote();
     fireEvent.click(screen.getByText("Write test stroke"));
-    fireEvent.click(screen.getByText("+ Add page"));
+    fireEvent.click(screen.getByLabelText("Add page"));
     await screen.findByText("Page 2");
     fireEvent.click(screen.getByText("All notes"));
     await screen.findByText("Recent notes");

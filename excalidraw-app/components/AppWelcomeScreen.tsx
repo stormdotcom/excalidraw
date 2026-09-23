@@ -2,6 +2,8 @@ import React from "react";
 import { useI18n } from "../../packages/excalidraw/i18n";
 import { WelcomeScreen } from "../../packages/excalidraw/index";
 import { AppLogo } from "./AppLogo";
+import { NOTES_URL } from "./NotesButton";
+import { NotebookIcon } from "../notebook/icons";
 
 export const AppWelcomeScreen: React.FC = React.memo(() => {
   const { t } = useI18n();
@@ -22,6 +24,14 @@ export const AppWelcomeScreen: React.FC = React.memo(() => {
         </WelcomeScreen.Center.Heading>
         <WelcomeScreen.Center.Menu>
           <WelcomeScreen.Center.MenuItemLoadScene />
+          <WelcomeScreen.Center.MenuItem
+            icon={NotebookIcon}
+            onSelect={() => {
+              window.location.href = NOTES_URL;
+            }}
+          >
+            {t("labels.notebooks")}
+          </WelcomeScreen.Center.MenuItem>
           <WelcomeScreen.Center.MenuItemHelp />
         </WelcomeScreen.Center.Menu>
       </WelcomeScreen.Center>

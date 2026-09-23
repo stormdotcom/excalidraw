@@ -9,6 +9,8 @@ import {
 } from "../app_constants";
 import { LanguageList } from "../app-language/LanguageList";
 import { t } from "../../packages/excalidraw/i18n";
+import { NOTES_URL } from "./NotesButton";
+import { NotebookIcon } from "../notebook/icons";
 
 export const AppMainMenu: React.FC<{
   theme: Theme | "system";
@@ -17,8 +19,9 @@ export const AppMainMenu: React.FC<{
   return (
     <MainMenu>
       <MainMenu.Item
+        icon={NotebookIcon}
         onSelect={() => {
-          window.location.href = "/notes.html";
+          window.location.href = NOTES_URL;
         }}
       >
         {t("labels.notebooks")}
