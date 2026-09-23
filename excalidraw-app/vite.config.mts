@@ -57,6 +57,17 @@ export default defineConfig({
   plugins: [
     woff2BrowserPlugin({ localUIFonts: true }),
     react(),
+    {
+      // notes.html ships a strict CSP; the dev server needs inline HMR scripts.
+      name: "strip-notes-csp-in-dev",
+      apply: "serve",
+      transformIndexHtml(html) {
+        return html.replace(
+          /<meta\s+http-equiv="Content-Security-Policy"[\s\S]*?\/>/,
+          "",
+        );
+      },
+    },
     checker({
       typescript: true,
       eslint:

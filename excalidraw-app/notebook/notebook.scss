@@ -1,0 +1,252 @@
+.notebook {
+  --note-ink: #24364b;
+  --note-accent: #295aa3;
+  height: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #edf1f5;
+  color: var(--note-ink);
+  font: 16px "Assistant", system-ui, sans-serif;
+
+  > header,
+  .notebook-sidebar,
+  .notebook-home,
+  .notebook-exit-focus,
+  .notebook-fit,
+  .notebook-error {
+    button,
+    input,
+    select,
+    a {
+      font: inherit;
+      color: inherit;
+    }
+    button,
+    select,
+    a {
+      min-height: 44px;
+      border: 1px solid #c8d2de;
+      border-radius: 8px;
+      padding: 8px 14px;
+      background: white;
+      cursor: pointer;
+    }
+    button:hover,
+    a:hover {
+      background: #e7eef9;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+    :focus-visible {
+      outline: 3px solid var(--note-accent);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.notebook-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 18px;
+  background: white;
+  border-bottom: 1px solid #c8d2de;
+  input {
+    width: min(24vw, 300px);
+    min-width: 120px;
+    border: 0;
+    padding: 10px;
+    background: transparent;
+    font-weight: 600 !important;
+  }
+  a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+  [role="status"] {
+    font-size: 13px;
+    margin-left: auto;
+    color: #53677c;
+  }
+}
+.notebook-home {
+  width: min(820px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 60px 0 24px;
+  overflow: auto;
+  h1 {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 600;
+    margin: 0;
+  }
+  p {
+    max-width: 60ch;
+    line-height: 1.6;
+  }
+  h2 {
+    font-size: 20px;
+    margin-top: 44px;
+  }
+  button.notebook-primary {
+    color: white;
+    background: var(--note-accent);
+    border-color: var(--note-accent);
+  }
+}
+.notebook-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  button {
+    display: flex;
+    text-align: left;
+    align-items: center;
+    gap: 24px;
+  }
+  strong {
+    margin-right: auto;
+    overflow-wrap: anywhere;
+  }
+  span,
+  time {
+    white-space: nowrap;
+    font-size: 14px;
+  }
+}
+.notebook-storage-note {
+  color: #53677c;
+  font-size: 14px;
+  margin-top: 40px;
+}
+.notebook-workspace {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.notebook-sidebar {
+  width: 164px;
+  flex-shrink: 0;
+  overflow: auto;
+  padding: 16px;
+  box-sizing: border-box;
+  border-right: 1px solid #c8d2de;
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  nav button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px !important;
+  }
+  [aria-current="page"] {
+    border-color: var(--note-accent) !important;
+    background: #e0eafa !important;
+  }
+}
+.notebook-paper-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  small {
+    font-size: 12px;
+  }
+}
+.notebook-page-preview {
+  width: 27px;
+  height: 38px;
+  display: block;
+  background: white;
+  border: 1px solid #b9c6d2;
+}
+.notebook-page-preview--ruled,
+.notebook-page-preview--grid {
+  background: repeating-linear-gradient(white 0 6px, #dce4ec 6px 7px);
+}
+.notebook-editor {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  .excalidraw {
+    background: transparent;
+  }
+}
+.notebook-paper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.notebook-fit,
+.notebook-exit-focus {
+  position: absolute;
+  right: 18px;
+  bottom: 64px;
+  z-index: 10;
+  font: inherit;
+  color: #24364b;
+  background: white;
+  border: 1px solid #b9c6d2;
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.notebook-exit-focus {
+  top: 16px;
+  bottom: auto;
+}
+.notebook-error {
+  padding: 12px 18px;
+  background: #fff0e2;
+  color: #733b10;
+  z-index: 12;
+  button {
+    margin-left: 12px;
+  }
+}
+@media (max-width: 760px) {
+  .notebook-header {
+    padding: 8px;
+    gap: 6px;
+    input {
+      flex: 1;
+    }
+    [role="status"] {
+      order: 2;
+      width: 100%;
+    }
+  }
+  .notebook-sidebar {
+    width: 104px;
+    padding: 8px;
+    nav button {
+      flex-direction: column;
+      gap: 4px;
+    }
+    select {
+      padding: 8px !important;
+    }
+  }
+  .notebook-list button {
+    gap: 12px;
+    time {
+      display: none;
+    }
+  }
+  .notebook-home {
+    padding-top: 28px;
+  }
+}

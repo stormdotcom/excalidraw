@@ -1,0 +1,389 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createNotebook, createPage } from "./model";
+import type { Notebook, NotePage, Paper } from "./model";
+import { listNotebooks, saveNotebook } from "./storage";
+import { PageEditor } from "./PageEditor";
+import "./notebook.scss";
+
+export default function NotebookApp() {
+  const [notes, setNotes] = useState<Notebook[]>([]);
+  const [active, setActive] = useState<Notebook | null>(null);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [focus, setFocus] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState("Opening notes…");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const current = useRef<Notebook | null>(null);
+  const dirty = useRef(false);
+  const generation = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const pending = useRef<Promise<boolean> | null>(null);
+  const root = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    listNotebooks().then(
+      (stored) => {
+        if (!cancelled) {
+          setNotes(stored);
+          setReady(true);
+          setStatus("Stored on this device");
+        }
+      },
+      () => {
+        if (!cancelled) {
+          setError(
+            "Notes could not be opened. Allow browser storage and reload. Existing notes have not been replaced.",
+          );
+        }
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const flush = useCallback((): Promise<boolean> => {
+    clearTimeout(timer.current);
+    timer.current = undefined;
+    if (pending.current) {
+      return pending.current;
+    }
+    if (!dirty.current || !current.current) {
+      return Promise.resolve(true);
+    }
+    const operation = Promise.resolve().then(async () => {
+      try {
+        while (dirty.current && current.current) {
+          const note = structuredClone(current.current);
+          const savedGeneration = generation.current;
+          setStatus("Saving…");
+          const revision = await saveNotebook(note);
+          current.current = { ...current.current, revision };
+          dirty.current = generation.current !== savedGeneration;
+          setNotes((existing) => [
+            { ...note, revision },
+            ...existing.filter((item) => item.id !== note.id),
+          ]);
+        }
+        setStatus("Saved on this device");
+        setError("");
+        return true;
+      } catch (reason) {
+        setStatus("Not saved");
+        setError(
+          reason instanceof Error
+            ? reason.message
+            : "Storage is unavailable. Download a backup before leaving.",
+        );
+        return false;
+      } finally {
+        pending.current = null;
+      }
+    });
+    pending.current = operation;
+    return operation;
+  }, []);
+
+  const change = useCallback(
+    (note: Notebook, render = false) => {
+      current.current = { ...note, updatedAt: Date.now() };
+      dirty.current = true;
+      generation.current++;
+      setStatus("Unsaved changes");
+      if (render) {
+        setActive(current.current);
+      }
+      // A bounded throttle also saves during continuous handwriting.
+      if (!timer.current) {
+        timer.current = setTimeout(() => {
+          void flush();
+        }, 700);
+      }
+    },
+    [flush],
+  );
+
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === "hidden") {
+        void flush();
+      }
+    };
+    const onUnload = (event: BeforeUnloadEvent) => {
+      if (dirty.current) {
+        void flush();
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setFocus(false);
+      }
+    };
+    const onFullscreen = () => setFullscreen(!!document.fullscreenElement);
+    document.addEventListener("visibilitychange", onHide);
+    document.addEventListener("fullscreenchange", onFullscreen);
+    window.addEventListener("beforeunload", onUnload);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      clearTimeout(timer.current);
+      document.removeEventListener("visibilitychange", onHide);
+      document.removeEventListener("fullscreenchange", onFullscreen);
+      window.removeEventListener("beforeunload", onUnload);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [flush]);
+
+  const openNote = (note: Notebook) => {
+    current.current = note;
+    setActive(note);
+    setPageIndex(0);
+  };
+
+  const navigate = async (action: () => void) => {
+    setBusy(true);
+    if (await flush()) {
+      action();
+    }
+    setBusy(false);
+  };
+
+  const updatePage = (page: NotePage) => {
+    const note = current.current;
+    if (note) {
+      change({
+        ...note,
+        pages: note.pages.map((item) => (item.id === page.id ? page : item)),
+      });
+    }
+  };
+
+  const downloadBackup = () => {
+    if (!current.current) {
+      return;
+    }
+    const url = URL.createObjectURL(
+      new Blob(
+        [
+          JSON.stringify({
+            format: "draw-notebook",
+            notebook: current.current,
+          }),
+        ],
+        { type: "application/json" },
+      ),
+    );
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${
+      current.current.title.replace(/[^a-z0-9 _-]/gi, "_") || "note"
+    }.drawnote.json`;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else if (root.current?.requestFullscreen) {
+        await root.current.requestFullscreen();
+      } else {
+        setFocus(true);
+        setStatus(
+          "Focus mode enabled. Full screen is unavailable in this browser.",
+        );
+      }
+    } catch {
+      setFocus(true);
+      setStatus("Focus mode enabled. The browser declined full screen.");
+    }
+  };
+
+  const page = active?.pages[pageIndex];
+  return (
+    <div className={`notebook ${focus ? "notebook--focus" : ""}`} ref={root}>
+      {!focus && (
+        <header className="notebook-header">
+          {active ? (
+            <button
+              disabled={busy}
+              onClick={() =>
+                void navigate(() => {
+                  current.current = null;
+                  setActive(null);
+                })
+              }
+            >
+              All notes
+            </button>
+          ) : (
+            <a href="/">Whiteboard</a>
+          )}
+          {active ? (
+            <input
+              aria-label="Note title"
+              value={active.title}
+              maxLength={120}
+              onChange={(event) =>
+                current.current &&
+                change({ ...current.current, title: event.target.value }, true)
+              }
+            />
+          ) : (
+            <strong>My notes</strong>
+          )}
+          <span role="status">{status}</span>
+          {active && (
+            <>
+              <button onClick={downloadBackup}>Download backup</button>
+              <button onClick={() => setFocus(true)}>Focus</button>
+              <button onClick={() => void toggleFullscreen()}>
+                {fullscreen ? "Exit full screen" : "Full screen"}
+              </button>
+            </>
+          )}
+        </header>
+      )}
+      {error && (
+        <div role="alert" className="notebook-error">
+          {error}{" "}
+          {active && (
+            <>
+              <button onClick={() => void flush()}>Retry save</button>
+              <button onClick={downloadBackup}>Download backup</button>
+            </>
+          )}
+        </div>
+      )}
+      {!active ? (
+        <main className="notebook-home">
+          <h1>A little space to think.</h1>
+          <p>
+            A4 pages for handwriting, sketches, and ideas. Your notes stay in
+            this browser.
+          </p>
+          <button
+            className="notebook-primary"
+            disabled={!ready || busy}
+            onClick={() => {
+              const note = createNotebook();
+              openNote(note);
+              change(note);
+            }}
+          >
+            New note
+          </button>
+          <h2>Recent notes</h2>
+          {ready && !notes.length && (
+            <p>Create your first note and start writing.</p>
+          )}
+          <div className="notebook-list">
+            {notes.map((note) => (
+              <button key={note.id} onClick={() => openNote(note)}>
+                <strong>{note.title || "Untitled note"}</strong>
+                <span>
+                  {note.pages.length}{" "}
+                  {note.pages.length === 1 ? "page" : "pages"}
+                </span>
+                <time>{new Date(note.updatedAt).toLocaleDateString()}</time>
+              </button>
+            ))}
+          </div>
+          <p className="notebook-storage-note">
+            Clearing browser data removes local notes. Download backups to keep
+            a separate copy.
+          </p>
+        </main>
+      ) : (
+        page && (
+          <div className="notebook-workspace">
+            {!focus && (
+              <aside className="notebook-sidebar" aria-label="Pages">
+                <div className="notebook-paper-options">
+                  <label htmlFor="notebook-paper">Paper</label>
+                  <select
+                    id="notebook-paper"
+                    value={page.paper}
+                    onChange={(event) => {
+                      const note = current.current!;
+                      change(
+                        {
+                          ...note,
+                          pages: note.pages.map((item, index) =>
+                            index === pageIndex
+                              ? { ...item, paper: event.target.value as Paper }
+                              : item,
+                          ),
+                        },
+                        true,
+                      );
+                    }}
+                  >
+                    <option value="blank">Blank</option>
+                    <option value="ruled">Ruled</option>
+                    <option value="grid">Grid</option>
+                  </select>
+                  <small>A4 · 210 × 297 mm</small>
+                </div>
+                <nav aria-label="Note pages">
+                  {active.pages.map((item, index) => (
+                    <button
+                      key={item.id}
+                      disabled={busy}
+                      aria-current={index === pageIndex ? "page" : undefined}
+                      onClick={() =>
+                        void navigate(() => {
+                          setActive(current.current);
+                          setPageIndex(index);
+                        })
+                      }
+                    >
+                      <span
+                        className={`notebook-page-preview notebook-page-preview--${item.paper}`}
+                      />
+                      Page {index + 1}
+                    </button>
+                  ))}
+                </nav>
+                <button
+                  disabled={busy}
+                  onClick={() =>
+                    void navigate(() => {
+                      const note = current.current!;
+                      change(
+                        {
+                          ...note,
+                          pages: [...note.pages, createPage(page.paper)],
+                        },
+                        true,
+                      );
+                      setPageIndex(note.pages.length);
+                    })
+                  }
+                >
+                  + Add page
+                </button>
+              </aside>
+            )}
+            <PageEditor
+              key={page.id}
+              page={page}
+              focus={focus}
+              onChange={updatePage}
+            />
+          </div>
+        )
+      )}
+      {focus && (
+        <button className="notebook-exit-focus" onClick={() => setFocus(false)}>
+          Exit focus
+        </button>
+      )}
+    </div>
+  );
+}
