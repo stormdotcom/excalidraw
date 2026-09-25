@@ -2,7 +2,13 @@ import type { OrderedExcalidrawElement } from "../../packages/excalidraw/element
 import type { AppState, BinaryFiles } from "../../packages/excalidraw/types";
 
 export const A4 = { width: 794, height: 1123 } as const;
-export type Paper = "blank" | "ruled" | "grid";
+export type Paper =
+  | "blank"
+  | "ruled"
+  | "grid"
+  | "dot"
+  | "cornell"
+  | "storyboard";
 export type NotePage = {
   id: string;
   paper: Paper;

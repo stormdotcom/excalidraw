@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { buildPdf } from "./exportNotebook";
+import { describe, expect, it, vi } from "vitest";
+import { buildPdf, renderPageToCanvas } from "./exportNotebook";
+import { createPage } from "./model";
 
 // jsdom's Blob has no arrayBuffer()
 const text = (blob: Blob) =>
@@ -11,6 +12,25 @@ const text = (blob: Blob) =>
   });
 
 describe("notebook PDF export", () => {
+  it("draws every Studio paper guide into exported pages", async () => {
+    const arc = vi.spyOn(CanvasRenderingContext2D.prototype, "arc");
+    const lineTo = vi.spyOn(CanvasRenderingContext2D.prototype, "lineTo");
+    const strokeRect = vi.spyOn(
+      CanvasRenderingContext2D.prototype,
+      "strokeRect",
+    );
+
+    await renderPageToCanvas(createPage("dot"), 1);
+    expect(arc).toHaveBeenCalled();
+
+    lineTo.mockClear();
+    await renderPageToCanvas(createPage("cornell"), 1);
+    expect(lineTo).toHaveBeenCalledWith(742, 944);
+
+    await renderPageToCanvas(createPage("storyboard"), 1);
+    expect(strokeRect).toHaveBeenCalledTimes(6);
+  });
+
   it("writes one A4 page per image with a valid cross-reference table", async () => {
     const jpeg = new Uint8Array([0xff, 0xd8, 0xff, 0xd9]);
     const pdf = await text(

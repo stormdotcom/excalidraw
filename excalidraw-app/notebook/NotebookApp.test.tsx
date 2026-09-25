@@ -13,11 +13,16 @@ vi.mock("./PageEditor", () => ({
     page: NotePage;
     onChange: (page: NotePage) => void;
   }) => (
-    <button
-      onClick={() => onChange({ ...page, appState: { name: "Written page" } })}
-    >
-      Write test stroke
-    </button>
+    <>
+      <output aria-label="Active paper">{page.paper}</output>
+      <button
+        onClick={() =>
+          onChange({ ...page, appState: { name: "Written page" } })
+        }
+      >
+        Write test stroke
+      </button>
+    </>
   ),
 }));
 
@@ -35,6 +40,19 @@ const startNote = async () => {
 };
 
 describe("notebook navigation", () => {
+  it("applies a Studio paper and keeps it when adding another page", async () => {
+    await startNote();
+    fireEvent.click(screen.getByLabelText("Storyboard"));
+    expect(screen.getByLabelText("Active paper")).toHaveTextContent(
+      "storyboard",
+    );
+    fireEvent.click(screen.getByLabelText("Add page"));
+    await screen.findByText("Page 2");
+    expect(screen.getByLabelText("Active paper")).toHaveTextContent(
+      "storyboard",
+    );
+  });
+
   it("flushes edits before switching pages and keeps the earlier page", async () => {
     await startNote();
     fireEvent.click(screen.getByText("Write test stroke"));

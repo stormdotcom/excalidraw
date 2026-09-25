@@ -16,7 +16,6 @@ import {
   FocusIcon,
   FullscreenIcon,
   MoonIcon,
-  NotebookIcon,
   PlusIcon,
   SunIcon,
 } from "./icons";
@@ -44,6 +43,48 @@ const DrawLogoMark = () => (
   </svg>
 );
 
+const StudioArtwork = () => (
+  <svg
+    className="notebook-home__art"
+    viewBox="0 0 560 330"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path className="notebook-home__paper-back" d="M172 29h272v254H172z" />
+    <path className="notebook-home__paper" d="M120 52h283v250H120z" />
+    <path
+      className="notebook-home__stroke notebook-home__stroke--cobalt"
+      d="M166 115c46 -46 99 44 142 -2c32 -34 76 -23 100 10"
+    />
+    <path
+      className="notebook-home__stroke notebook-home__stroke--coral"
+      d="M161 173c37 34 74 -42 114 -2c39 39 72 -32 119 8"
+    />
+    <path
+      className="notebook-home__stroke notebook-home__stroke--ink"
+      d="M168 230c23 -20 42 19 64 -3c29 -29 67 21 93 -5"
+    />
+    <circle
+      className="notebook-home__paint notebook-home__paint--one"
+      cx="461"
+      cy="85"
+      r="30"
+    />
+    <circle
+      className="notebook-home__paint notebook-home__paint--two"
+      cx="471"
+      cy="151"
+      r="18"
+    />
+    <circle
+      className="notebook-home__paint notebook-home__paint--three"
+      cx="92"
+      cy="253"
+      r="24"
+    />
+  </svg>
+);
+
 /** Same sketchy logo as the whiteboard; links back to it. */
 const DrawHomeLink = () => (
   <a
@@ -61,6 +102,12 @@ const PAPERS: { value: Paper; label: string }[] = [
   { value: "blank", label: "Blank" },
   { value: "ruled", label: "Ruled" },
   { value: "grid", label: "Grid" },
+];
+
+const STUDIO_PAPERS: { value: Paper; label: string }[] = [
+  { value: "dot", label: "Dot grid" },
+  { value: "cornell", label: "Cornell notes" },
+  { value: "storyboard", label: "Storyboard" },
 ];
 
 /** Icon-only button like the whiteboard tool bar; the label is for tooltips and screen readers. */
@@ -411,49 +458,86 @@ export default function NotebookApp() {
       )}
       {!active ? (
         <main className="notebook-home">
-          <div className="notebook-home__logo">
-            <DrawLogoMark />
-            <span>Notes</span>
-          </div>
-          <p className="notebook-home__heading">
-            A4 pages for handwriting, sketches and ideas.
-            <br />
-            Everything stays in this browser.
-          </p>
-          <div className="notebook-home__menu">
-            <button
-              className="notebook-menu-item notebook-menu-item--primary"
-              aria-label="New note"
-              disabled={!ready || busy}
-              onClick={startNewNote}
-            >
-              <span className="notebook-menu-item__icon">{PlusIcon}</span>
-              <span className="notebook-menu-item__text">New note</span>
-            </button>
-            {notes.length > 0 && (
-              <h2 className="notebook-home__section">Recent notes</h2>
-            )}
-            {ready && !notes.length && (
-              <p className="notebook-home__empty">
-                No notes yet. Create one to start writing.
+          <section className="notebook-home__hero">
+            <div className="notebook-home__intro">
+              <div className="notebook-home__logo">
+                <DrawLogoMark />
+                <span>Draw Notes</span>
+              </div>
+              <h1>
+                Start with paper.
+                <br />
+                Take it anywhere.
+              </h1>
+              <p className="notebook-home__heading">
+                A focused A4 studio for Pencil sketches, colour studies and
+                handwritten ideas. Everything stays in this browser.
               </p>
+              <span className="notebook-home__studio-badge">
+                <span className="notebook-studio-mark" aria-hidden="true" />
+                Studio preview · artist paper pack
+              </span>
+              <button
+                className="notebook-start-button"
+                aria-label="New note"
+                disabled={!ready || busy}
+                onClick={startNewNote}
+              >
+                <span className="notebook-start-button__icon">{PlusIcon}</span>
+                <span>New note</span>
+                <small>Blank A4 notebook</small>
+              </button>
+            </div>
+            <StudioArtwork />
+          </section>
+          <div className="notebook-home__library">
+            <div className="notebook-home__library-heading">
+              <div>
+                <h2>Recent notes</h2>
+                <p>Pick up where your last line ended.</p>
+              </div>
+              <div className="notebook-home__ink-key" aria-hidden="true">
+                <span style={{ "--ink": "#3157d5" } as React.CSSProperties} />
+                <span style={{ "--ink": "#ff6b6b" } as React.CSSProperties} />
+                <span style={{ "--ink": "#d9f99d" } as React.CSSProperties} />
+              </div>
+            </div>
+            {ready && !notes.length && (
+              <button
+                className="notebook-empty-note"
+                disabled={busy}
+                onClick={startNewNote}
+              >
+                <span
+                  className="notebook-empty-note__paper"
+                  aria-hidden="true"
+                />
+                <strong>Your first page is waiting.</strong>
+                <span>Create a note and make the first mark.</span>
+              </button>
             )}
             <div className="notebook-list">
-              {notes.map((note) => (
+              {notes.map((note, index) => (
                 <button
                   key={note.id}
-                  className="notebook-menu-item"
+                  className={`notebook-note-card notebook-note-card--${
+                    index % 4
+                  }`}
                   onClick={() => openNote(note)}
                 >
-                  <span className="notebook-menu-item__icon">
-                    {NotebookIcon}
+                  <span
+                    className="notebook-note-card__cover"
+                    aria-hidden="true"
+                  >
+                    <span />
+                    <span />
                   </span>
-                  <span className="notebook-menu-item__text">
-                    {note.title || "Untitled note"}
-                  </span>
-                  <span className="notebook-menu-item__meta">
-                    {note.pages.length}{" "}
-                    {note.pages.length === 1 ? "page" : "pages"} ·{" "}
+                  <span className="notebook-note-card__body">
+                    <strong>{note.title || "Untitled note"}</strong>
+                    <span>
+                      {note.pages.length}{" "}
+                      {note.pages.length === 1 ? "page" : "pages"}
+                    </span>
                     <time>{new Date(note.updatedAt).toLocaleDateString()}</time>
                   </span>
                 </button>
@@ -498,6 +582,34 @@ export default function NotebookApp() {
                     ))}
                   </div>
                   <small>A4 · 210 × 297 mm</small>
+                </div>
+                <div className="notebook-paper-options notebook-paper-options--studio">
+                  <span
+                    className="notebook-panel-label"
+                    id="notebook-studio-paper"
+                  >
+                    Studio <small>Premium preview</small>
+                  </span>
+                  <div
+                    className="notebook-segmented"
+                    role="radiogroup"
+                    aria-labelledby="notebook-studio-paper"
+                  >
+                    {STUDIO_PAPERS.map((paper) => (
+                      <button
+                        key={paper.value}
+                        role="radio"
+                        aria-checked={page.paper === paper.value}
+                        aria-label={paper.label}
+                        title={`${paper.label} · Studio preview`}
+                        onClick={() => setPaper(paper.value)}
+                      >
+                        <span
+                          className={`notebook-page-preview notebook-page-preview--${paper.value}`}
+                        />
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <span className="notebook-panel-label notebook-panel-label--pages">
                   Pages

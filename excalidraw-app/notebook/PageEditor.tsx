@@ -288,9 +288,17 @@ export const PageEditor = ({
               <path d="M23.5 0V28" className="notebook-paper__rule" />
             )}
           </pattern>
+          <pattern
+            id="notebook-dots"
+            width="24"
+            height="24"
+            patternUnits="userSpaceOnUse"
+          >
+            <circle cx="12" cy="12" r="1.25" className="notebook-paper__dot" />
+          </pattern>
         </defs>
         <rect width="100%" height="100%" className="notebook-paper__sheet" />
-        {page.paper !== "blank" && (
+        {(page.paper === "ruled" || page.paper === "grid") && (
           <rect
             x="36"
             y="56"
@@ -298,6 +306,48 @@ export const PageEditor = ({
             height="1010"
             fill="url(#notebook-rules)"
           />
+        )}
+        {page.paper === "dot" && (
+          <rect
+            x="36"
+            y="56"
+            width="722"
+            height="1010"
+            fill="url(#notebook-dots)"
+          />
+        )}
+        {page.paper === "cornell" && (
+          <g className="notebook-paper__cornell">
+            <line x1="52" y1="126" x2="742" y2="126" />
+            <line x1="224" y1="126" x2="224" y2="944" />
+            <line x1="52" y1="944" x2="742" y2="944" />
+            {Array.from({ length: 26 }, (_, index) => (
+              <line
+                key={index}
+                x1="240"
+                y1={154 + index * 29}
+                x2="742"
+                y2={154 + index * 29}
+              />
+            ))}
+          </g>
+        )}
+        {page.paper === "storyboard" && (
+          <g className="notebook-paper__storyboard">
+            <line x1="70" y1="74" x2="340" y2="74" />
+            {[0, 1, 2].flatMap((row) =>
+              [0, 1].map((column) => (
+                <rect
+                  key={`${row}-${column}`}
+                  x={70 + column * 342}
+                  y={112 + row * 322}
+                  width="282"
+                  height="238"
+                  rx="4"
+                />
+              )),
+            )}
+          </g>
         )}
         <rect
           x="0.5"

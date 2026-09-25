@@ -24,10 +24,56 @@ const drawPaper = (
   ctx.save();
   ctx.scale(scale, scale);
   ctx.strokeStyle = RULE_COLOR;
+  ctx.fillStyle = RULE_COLOR;
   ctx.lineWidth = 1;
-  ctx.beginPath();
   const right = RULES.x + RULES.width;
   const bottom = RULES.y + RULES.height;
+
+  if (paper === "dot") {
+    for (let y = RULES.y + 12; y <= bottom; y += 24) {
+      for (let x = RULES.x + 12; x <= right; x += 24) {
+        ctx.beginPath();
+        ctx.arc(x, y, 1.25, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+    return;
+  }
+
+  if (paper === "cornell") {
+    ctx.beginPath();
+    ctx.moveTo(52, 126);
+    ctx.lineTo(742, 126);
+    ctx.moveTo(224, 126);
+    ctx.lineTo(224, 944);
+    ctx.moveTo(52, 944);
+    ctx.lineTo(742, 944);
+    for (let index = 0; index < 26; index++) {
+      const y = 154 + index * 29;
+      ctx.moveTo(240, y);
+      ctx.lineTo(742, y);
+    }
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
+
+  if (paper === "storyboard") {
+    ctx.beginPath();
+    ctx.moveTo(70, 74);
+    ctx.lineTo(340, 74);
+    ctx.stroke();
+    for (let row = 0; row < 3; row++) {
+      for (let column = 0; column < 2; column++) {
+        ctx.strokeRect(70 + column * 342, 112 + row * 322, 282, 238);
+      }
+    }
+    ctx.restore();
+    return;
+  }
+
+  ctx.beginPath();
   for (let y = RULES.y + RULES.dy - 0.5; y <= bottom; y += RULES.dy) {
     ctx.moveTo(RULES.x, y);
     ctx.lineTo(right, y);

@@ -1,7 +1,5 @@
-// Notes use the whiteboard's own design system: the root element carries the
-// `excalidraw` (+ `theme--dark`) classes, so every colour, radius, shadow and
-// size below comes from packages/excalidraw/css/theme.scss, and buttons reuse
-// the editor's mixins. Keep it that way instead of adding new colours.
+// A quiet studio around the whiteboard: the app keeps Excalidraw's controls,
+// but gives the notebook a small set of artist-facing accent colours.
 @import "../../packages/excalidraw/css/variables.module.scss";
 
 .notebook.excalidraw {
@@ -11,6 +9,11 @@
   --nb-paper: #ffffff;
   --nb-paper-rule: #dde3ea;
   --nb-paper-edge: var(--color-gray-30);
+  --nb-ink: #182132;
+  --nb-cobalt: #3157d5;
+  --nb-coral: #ff6b6b;
+  --nb-citron: #d9f99d;
+  --nb-violet: #7048e8;
   --nb-safe-top: env(safe-area-inset-top, 0px);
   --nb-safe-right: env(safe-area-inset-right, 0px);
   --nb-safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -29,6 +32,8 @@
     --nb-paper: #1e1e24;
     --nb-paper-rule: #34343e;
     --nb-paper-edge: #3c3c48;
+    --nb-ink: #f5f7fb;
+    --nb-citron: #b9e66f;
   }
 
   @media (pointer: coarse) {
@@ -377,6 +382,380 @@
   }
 }
 
+// Artist home: one generous working-table composition instead of a menu stack.
+.notebook-home {
+  align-items: stretch;
+  gap: clamp(2.5rem, 7vh, 5rem);
+  width: 100%;
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: clamp(2rem, 6vh, 4.5rem) clamp(1rem, 5vw, 4rem)
+    calc(2rem + var(--nb-safe-bottom));
+
+  &__hero {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.9fr) minmax(22rem, 1.1fr);
+    align-items: center;
+    gap: clamp(1rem, 5vw, 5rem);
+    min-height: min(34rem, 62vh);
+    flex-shrink: 0;
+  }
+
+  &__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  &__logo {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--nb-cobalt);
+
+    .notebook-logo-mark {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+
+  h1 {
+    max-width: 13ch;
+    margin: 1.25rem 0 1rem;
+    color: var(--nb-ink);
+    font-family: "Excalifont", "Virgil", var(--ui-font);
+    font-size: clamp(2.8rem, 6vw, 5.9rem);
+    font-weight: 500;
+    line-height: 0.92;
+    letter-spacing: -0.045em;
+  }
+
+  &__heading {
+    max-width: 34rem;
+    margin: 0;
+    text-align: left;
+    font-family: var(--ui-font);
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--color-muted-darker);
+  }
+
+  &__studio-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.4rem 0.65rem;
+    border: 1px solid color-mix(in srgb, var(--nb-violet) 36%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--nb-violet) 9%, transparent);
+    color: var(--nb-violet);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  &__art {
+    width: 100%;
+    overflow: visible;
+  }
+
+  &__paper-back {
+    fill: var(--nb-citron);
+    transform: rotate(7deg);
+    transform-origin: 308px 156px;
+  }
+
+  &__paper {
+    fill: var(--nb-paper);
+    stroke: var(--nb-paper-edge);
+    stroke-width: 1;
+  }
+
+  &__stroke {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 13;
+
+    &--cobalt {
+      stroke: var(--nb-cobalt);
+    }
+
+    &--coral {
+      stroke: var(--nb-coral);
+      stroke-width: 20;
+      opacity: 0.8;
+    }
+
+    &--ink {
+      stroke: var(--nb-ink);
+      stroke-width: 7;
+    }
+  }
+
+  &__paint {
+    &--one {
+      fill: var(--nb-violet);
+    }
+
+    &--two {
+      fill: var(--nb-coral);
+    }
+
+    &--three {
+      fill: var(--nb-cobalt);
+    }
+  }
+
+  &__library {
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  &__library-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--default-border-color);
+
+    h2 {
+      margin: 0;
+      color: var(--nb-ink);
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0.25rem 0 0;
+      color: var(--color-muted-darker);
+      font-size: 0.875rem;
+    }
+  }
+
+  &__ink-key {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.35rem;
+
+    span {
+      display: block;
+      width: 2.4rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: var(--ink);
+      transform: rotate(-5deg);
+    }
+
+    span:nth-child(2) {
+      width: 1.6rem;
+      transform: rotate(8deg);
+    }
+
+    span:nth-child(3) {
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+    }
+  }
+}
+
+.notebook-studio-mark {
+  display: block;
+  width: 0.65rem;
+  height: 0.65rem;
+  background: var(--nb-violet);
+  transform: rotate(45deg);
+}
+
+.notebook-start-button {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr;
+  align-items: center;
+  column-gap: 0.75rem;
+  min-width: 15rem;
+  margin-top: 2rem;
+  padding: 0.8rem 1.1rem;
+  border: 0;
+  border-radius: 0.9rem;
+  background: var(--nb-cobalt);
+  color: white;
+  text-align: left;
+  cursor: pointer;
+
+  &__icon {
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: white;
+    color: var(--nb-cobalt);
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  > span:not(.notebook-start-button__icon) {
+    align-self: end;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  small {
+    align-self: start;
+    opacity: 0.74;
+  }
+
+  &:hover:not(:disabled) {
+    background: #2748b5;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: wait;
+  }
+}
+
+.notebook-empty-note {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(100%, 24rem);
+  margin: 2.5rem auto 0;
+  padding: 1.5rem;
+  border: 1px dashed var(--color-muted-darker);
+  border-radius: 1rem;
+  background: transparent;
+  color: var(--text-primary-color);
+  cursor: pointer;
+
+  &__paper {
+    width: 3rem;
+    height: 4.25rem;
+    margin-bottom: 1rem;
+    background: var(--nb-paper);
+    border: 1px solid var(--nb-paper-edge);
+    transform: rotate(-4deg);
+  }
+
+  > span:last-child {
+    margin-top: 0.3rem;
+    color: var(--color-muted-darker);
+    font-size: 0.8rem;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: var(--nb-cobalt);
+    color: var(--nb-cobalt);
+  }
+}
+
+.notebook-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.notebook-note-card {
+  display: grid;
+  grid-template-rows: 9rem auto;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--default-border-color);
+  border-radius: 1rem;
+  background: var(--island-bg-color);
+  color: var(--text-primary-color);
+  text-align: left;
+  cursor: pointer;
+
+  &__cover {
+    position: relative;
+    display: block;
+    background: var(--cover-color);
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 1.2rem;
+      top: 1rem;
+      width: 5.4rem;
+      height: 6.9rem;
+      background: var(--nb-paper);
+      border: 1px solid rgba(24, 33, 50, 0.16);
+      transform: rotate(-4deg);
+    }
+
+    span {
+      position: absolute;
+      z-index: 1;
+      left: 2.1rem;
+      top: 3.2rem;
+      width: 3.7rem;
+      height: 0.42rem;
+      border-radius: 999px;
+      background: var(--cover-ink);
+      transform: rotate(-12deg);
+    }
+
+    span + span {
+      top: 4.65rem;
+      width: 2.7rem;
+      transform: rotate(8deg);
+    }
+  }
+
+  &__body {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.25rem 0.75rem;
+    padding: 0.9rem 1rem 1rem;
+
+    strong {
+      grid-column: 1 / -1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    span,
+    time {
+      color: var(--color-muted-darker);
+      font-size: 0.75rem;
+    }
+  }
+
+  &--0 {
+    --cover-color: var(--nb-citron);
+    --cover-ink: var(--nb-cobalt);
+  }
+
+  &--1 {
+    --cover-color: #ffd8a8;
+    --cover-ink: #c2410c;
+  }
+
+  &--2 {
+    --cover-color: #d0bfff;
+    --cover-ink: #5f3dc4;
+  }
+
+  &--3 {
+    --cover-color: #b2f2bb;
+    --cover-ink: #087f5b;
+  }
+
+  &:hover {
+    border-color: var(--nb-cobalt);
+    transform: translateY(-2px);
+  }
+}
+
 .notebook-storage-note {
   max-width: 400px;
   margin: auto 0 0;
@@ -432,6 +811,30 @@
     font-size: 0.6875rem;
     color: var(--color-muted-darker);
   }
+
+  &--studio {
+    margin-top: 0.25rem;
+    padding-top: 0.625rem;
+    border-top: 1px solid var(--default-border-color);
+
+    .notebook-panel-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      color: var(--nb-violet);
+      font-weight: 700;
+
+      small {
+        padding: 0.15rem 0.35rem;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--nb-violet) 11%, transparent);
+        color: inherit;
+        font-size: 0.58rem;
+        font-weight: 700;
+      }
+    }
+  }
 }
 
 // like the editor's property buttons (stroke style etc.)
@@ -486,6 +889,51 @@
       transparent 1px 5px
     ),
     var(--nb-paper);
+}
+
+.notebook-page-preview--dot {
+  background-color: var(--nb-paper);
+  background-image: radial-gradient(
+    circle at center,
+    var(--nb-paper-rule) 0 1px,
+    transparent 1px
+  );
+  background-size: 5px 5px;
+}
+
+.notebook-page-preview--cornell {
+  position: relative;
+  background: var(--nb-paper);
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    background: var(--nb-paper-rule);
+  }
+
+  &::before {
+    left: 32%;
+    top: 18%;
+    bottom: 14%;
+    width: 1px;
+  }
+
+  &::after {
+    left: 8%;
+    right: 8%;
+    bottom: 14%;
+    height: 1px;
+  }
+}
+
+.notebook-page-preview--storyboard {
+  background-color: var(--nb-paper);
+  background-image: linear-gradient(var(--nb-paper-rule), var(--nb-paper-rule)),
+    linear-gradient(var(--nb-paper-rule), var(--nb-paper-rule));
+  background-size: 1px 100%, 100% 1px;
+  background-position: center, center;
+  background-repeat: no-repeat;
 }
 
 // like the editor's dropdown menu items
@@ -562,6 +1010,17 @@
     stroke: var(--nb-paper-rule);
   }
 
+  &__dot {
+    fill: var(--nb-paper-rule);
+  }
+
+  &__cornell,
+  &__storyboard {
+    fill: none;
+    stroke: var(--nb-paper-rule);
+    stroke-width: 1;
+  }
+
   &__edge {
     stroke: var(--nb-paper-edge);
   }
@@ -619,6 +1078,106 @@
 
 // ------------------------------------------------------------ note tools --
 
+.notebook-palette {
+  position: absolute;
+  left: 50%;
+  top: 4.5rem;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: calc(100% - 2 * var(--nb-gap));
+  min-height: 2.75rem;
+  padding: 0.25rem 0.45rem 0.25rem 0.75rem;
+  box-sizing: border-box;
+  background: var(--island-bg-color);
+  border: 1px solid var(--default-border-color);
+  border-radius: 999px;
+  box-shadow: var(--shadow-island);
+
+  &__label {
+    flex-shrink: 0;
+    padding-right: 0.2rem;
+    color: var(--color-muted-darker);
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &__swatches {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__swatch {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+
+    &::before {
+      content: "";
+      width: 1.1rem;
+      height: 1.1rem;
+      border-radius: 50%;
+      background: var(--swatch);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+    }
+
+    &:hover::before {
+      transform: scale(1.2);
+    }
+
+    &[aria-checked="true"] {
+      background: var(--button-hover-bg);
+    }
+
+    &[aria-checked="true"]::before {
+      box-shadow: 0 0 0 2px var(--island-bg-color), 0 0 0 3px var(--nb-cobalt);
+    }
+  }
+
+  &__custom {
+    position: relative;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-left: 1px solid var(--default-border-color);
+    color: var(--text-primary-color);
+    cursor: pointer;
+
+    input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    span {
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+  }
+}
+
 .notebook-toolbar {
   position: absolute;
   left: 50%;
@@ -645,45 +1204,10 @@
     @include notebook-tool-button;
   }
 
-  &__colors {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0 0.375rem;
-    margin: 0 0.125rem;
-    border-left: 1px solid var(--default-border-color);
-    border-right: 1px solid var(--default-border-color);
-  }
-
-  // like the editor's quick colour picks
-  &__swatch {
-    flex-shrink: 0;
-    display: grid;
-    place-items: center;
-    width: calc(var(--nb-tool-size) - 0.5rem);
-    height: var(--nb-tool-size);
-    padding: 0;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-
-    &::before {
-      content: "";
-      width: 1.375rem;
-      height: 1.375rem;
-      border-radius: var(--border-radius-md);
-      background: var(--swatch);
-      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
-    }
-
-    &:hover::before {
-      transform: scale(1.08);
-    }
-
-    &[aria-checked="true"]::before {
-      box-shadow: 0 0 0 2px var(--island-bg-color),
-        0 0 0 3px var(--color-primary);
-    }
+  &__divider {
+    width: 1px;
+    height: calc(var(--nb-tool-size) - 0.75rem);
+    background: var(--default-border-color);
   }
 }
 
@@ -853,6 +1377,10 @@
   .notebook-sidebar {
     width: 8.5rem;
   }
+
+  .notebook-home__hero {
+    grid-template-columns: minmax(17rem, 1fr) minmax(18rem, 0.9fr);
+  }
 }
 
 // ------------------------------------------------ phones (iPhone, Android) --
@@ -886,6 +1414,40 @@
     }
 
     .notebook-divider {
+      display: none;
+    }
+  }
+
+  .notebook-home {
+    gap: 3rem;
+    padding-top: 2.25rem;
+
+    &__hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+
+    &__intro {
+      align-items: center;
+      text-align: center;
+    }
+
+    h1 {
+      max-width: 10ch;
+      font-size: clamp(2.9rem, 15vw, 4.5rem);
+    }
+
+    &__heading {
+      text-align: center;
+    }
+
+    &__art {
+      width: min(100%, 30rem);
+      margin: -1.25rem auto 0;
+    }
+
+    &__library-heading p,
+    &__ink-key {
       display: none;
     }
   }
@@ -930,6 +1492,12 @@
     }
   }
 
+  .notebook-paper-options--studio {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
   .notebook-panel-label--pages {
     display: none;
   }
@@ -949,6 +1517,16 @@
   // above the editor's own bottom bar
   .notebook-toolbar {
     bottom: calc(4.25rem + var(--nb-safe-bottom));
+  }
+
+  .notebook-palette {
+    top: 4.15rem;
+    max-width: calc(100% - 1rem);
+    padding-left: 0.35rem;
+
+    &__label {
+      display: none;
+    }
   }
 
   .notebook-toolbar__tool {

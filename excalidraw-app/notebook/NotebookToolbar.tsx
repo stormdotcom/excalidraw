@@ -2,8 +2,41 @@ import type { ReactNode } from "react";
 
 export type NoteTool = "pencil" | "highlighter" | "eraser" | "select" | "hand";
 
-export const PENCIL_COLORS = ["#1e1e1e", "#1971c2", "#e03131", "#2f9e44"];
-export const HIGHLIGHTER_COLORS = ["#ffd43b", "#8ce99a", "#ffa8d6", "#74c0fc"];
+export const PENCIL_COLORS = [
+  "#1e1e1e",
+  "#3157d5",
+  "#f03e3e",
+  "#2b8a3e",
+  "#7048e8",
+  "#f76707",
+  "#d6336c",
+  "#0c8599",
+];
+export const HIGHLIGHTER_COLORS = [
+  "#ffe066",
+  "#8ce99a",
+  "#faa2c1",
+  "#74c0fc",
+  "#b197fc",
+  "#ffc078",
+];
+
+const COLOR_NAMES: Record<string, string> = {
+  "#1e1e1e": "Graphite",
+  "#3157d5": "Cobalt",
+  "#f03e3e": "Vermilion",
+  "#2b8a3e": "Palm",
+  "#7048e8": "Iris",
+  "#f76707": "Mandarin",
+  "#d6336c": "Raspberry",
+  "#0c8599": "Ocean",
+  "#ffe066": "Butter",
+  "#8ce99a": "Mint",
+  "#faa2c1": "Petal",
+  "#74c0fc": "Pool",
+  "#b197fc": "Lavender",
+  "#ffc078": "Peach",
+};
 
 const icon = (children: ReactNode) => (
   <svg
@@ -124,51 +157,71 @@ export const NotebookToolbar = ({
   const activeColor = tool === "highlighter" ? highlighterColor : pencilColor;
 
   return (
-    <div className="notebook-toolbar" role="toolbar" aria-label="Note tools">
-      {TOOLS.map((item) => (
-        <button
-          key={item.tool}
-          className="notebook-toolbar__tool"
-          aria-pressed={tool === item.tool}
-          aria-label={item.label}
-          title={`${item.label} — ${item.hint}`}
-          data-testid={`note-tool-${item.tool}`}
-          onClick={() => onTool(item.tool)}
-        >
-          {item.icon}
-        </button>
-      ))}
+    <>
       {colors && (
         <div
-          className="notebook-toolbar__colors"
+          className="notebook-palette"
           role="radiogroup"
           aria-label={
             tool === "highlighter" ? "Highlighter colour" : "Pencil colour"
           }
         >
-          {colors.map((color) => (
-            <button
-              key={color}
-              role="radio"
-              aria-checked={color === activeColor}
-              aria-label={`Colour ${color}`}
-              title={`Colour ${color}`}
-              className="notebook-toolbar__swatch"
-              style={{ "--swatch": color } as React.CSSProperties}
-              onClick={() => onColor(color)}
+          <span className="notebook-palette__label">
+            {tool === "highlighter" ? "Marker shelf" : "Trending inks"}
+          </span>
+          <div className="notebook-palette__swatches">
+            {colors.map((color) => (
+              <button
+                key={color}
+                role="radio"
+                aria-checked={color === activeColor}
+                aria-label={COLOR_NAMES[color] || `Colour ${color}`}
+                title={COLOR_NAMES[color] || `Colour ${color}`}
+                className="notebook-palette__swatch"
+                style={{ "--swatch": color } as React.CSSProperties}
+                onClick={() => onColor(color)}
+              />
+            ))}
+          </div>
+          <label
+            className="notebook-palette__custom"
+            title="Mix a custom colour"
+          >
+            <input
+              type="color"
+              value={activeColor}
+              aria-label="Custom colour"
+              onChange={(event) => onColor(event.target.value)}
             />
-          ))}
+            <span aria-hidden="true">+</span>
+          </label>
         </div>
       )}
-      <button
-        className="notebook-toolbar__tool"
-        aria-label="Fit page"
-        title="Fit page — show the whole A4 page"
-        data-testid="note-fit-page"
-        onClick={onFit}
-      >
-        {FitIcon}
-      </button>
-    </div>
+      <div className="notebook-toolbar" role="toolbar" aria-label="Note tools">
+        {TOOLS.map((item) => (
+          <button
+            key={item.tool}
+            className="notebook-toolbar__tool"
+            aria-pressed={tool === item.tool}
+            aria-label={item.label}
+            title={`${item.label} — ${item.hint}`}
+            data-testid={`note-tool-${item.tool}`}
+            onClick={() => onTool(item.tool)}
+          >
+            {item.icon}
+          </button>
+        ))}
+        <span className="notebook-toolbar__divider" />
+        <button
+          className="notebook-toolbar__tool"
+          aria-label="Fit page"
+          title="Fit page — show the whole A4 page"
+          data-testid="note-fit-page"
+          onClick={onFit}
+        >
+          {FitIcon}
+        </button>
+      </div>
+    </>
   );
 };
