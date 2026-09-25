@@ -1082,6 +1082,88 @@
   }
 }
 
+.notebook-screen-suggestion {
+  position: fixed;
+  left: 50%;
+  bottom: calc(0.75rem + var(--nb-safe-bottom));
+  z-index: 45;
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  gap: 0.15rem 0.8rem;
+  width: min(31rem, calc(100% - 1rem));
+  padding: 0.8rem;
+  box-sizing: border-box;
+  transform: translateX(-50%);
+  border: 1px solid color-mix(in srgb, var(--nb-cobalt) 28%, transparent);
+  border-radius: 1rem;
+  background: var(--island-bg-color);
+  color: var(--text-primary-color);
+  box-shadow: var(--modal-shadow), var(--shadow-island);
+  animation: notebook-suggestion-arrive 240ms ease-out both;
+
+  &__icon {
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--nb-cobalt) 12%, transparent);
+    color: var(--nb-cobalt);
+
+    svg {
+      width: 2rem;
+      height: 2rem;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  }
+
+  &__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    strong {
+      font-size: 0.9rem;
+    }
+
+    > span {
+      color: var(--color-muted-darker);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+  }
+
+  button {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 0.45rem;
+    padding: 0.45rem 0.7rem;
+    border: 0;
+    border-radius: 0.6rem;
+    background: var(--nb-cobalt);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover {
+      background: #2748b5;
+    }
+  }
+}
+
+@keyframes notebook-suggestion-arrive {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 0.75rem);
+  }
+}
+
 // ------------------------------------------------------------ note tools --
 
 .notebook-palette {
@@ -1653,6 +1735,10 @@
 @media (prefers-reduced-motion: reduce) {
   .notebook * {
     transition: none !important;
+  }
+
+  .notebook-screen-suggestion {
+    animation: none;
   }
 }
 

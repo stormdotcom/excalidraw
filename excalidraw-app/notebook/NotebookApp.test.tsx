@@ -27,6 +27,8 @@ vi.mock("./PageEditor", () => ({
 }));
 
 beforeEach(() => {
+  vi.unstubAllGlobals();
+  localStorage.clear();
   vi.mocked(listNotebooks).mockReset().mockResolvedValue([]);
   vi.mocked(saveNotebook)
     .mockReset()
@@ -40,6 +42,38 @@ const startNote = async () => {
 };
 
 describe("notebook navigation", () => {
+  it("suggests a larger screen once on a small first-time viewport", async () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn((query: string) => ({
+        matches: query === "(max-width: 767px)",
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    );
+
+    const firstVisit = render(<NotebookApp />);
+    expect(
+      await screen.findByRole("region", { name: "Screen size suggestion" }),
+    ).toHaveTextContent("designed for tablets and larger screens");
+    fireEvent.click(screen.getByText("Continue here"));
+    expect(
+      screen.queryByRole("region", { name: "Screen size suggestion" }),
+    ).not.toBeInTheDocument();
+    firstVisit.unmount();
+
+    render(<NotebookApp />);
+    await waitFor(() => expect(screen.getByText("New note")).toBeEnabled());
+    expect(
+      screen.queryByRole("region", { name: "Screen size suggestion" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("applies a Studio paper and keeps it when adding another page", async () => {
     await startNote();
     fireEvent.click(screen.getByLabelText("Storyboard"));

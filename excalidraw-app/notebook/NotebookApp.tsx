@@ -26,6 +26,9 @@ const canFullscreen = () =>
   !!document.fullscreenEnabled &&
   !!document.documentElement.requestFullscreen;
 
+const SCREEN_SUGGESTION_KEY = "draw-notebook-large-screen-suggestion-v1";
+const SMALL_SCREEN_QUERY = "(max-width: 767px)";
+
 const DrawLogoMark = () => (
   <svg
     className="notebook-logo-mark"
@@ -82,6 +85,15 @@ const StudioArtwork = () => (
       cy="253"
       r="24"
     />
+  </svg>
+);
+
+const ScreenSuggestionIcon = () => (
+  <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <rect x="5" y="8" width="29" height="23" rx="3" />
+    <path d="M14 39h12M20 31v8" />
+    <rect x="29" y="18" width="14" height="22" rx="2.5" />
+    <path d="M34 36h4" />
   </svg>
 );
 
@@ -144,6 +156,7 @@ export default function NotebookApp() {
   const [status, setStatus] = useState("Opening notes…");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showScreenSuggestion, setShowScreenSuggestion] = useState(false);
   const current = useRef<Notebook | null>(null);
   const dirty = useRef(false);
   const generation = useRef(0);
@@ -180,6 +193,28 @@ export default function NotebookApp() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!ready || !window.matchMedia?.(SMALL_SCREEN_QUERY).matches) {
+      return;
+    }
+    try {
+      setShowScreenSuggestion(
+        localStorage.getItem(SCREEN_SUGGESTION_KEY) !== "dismissed",
+      );
+    } catch {
+      setShowScreenSuggestion(true);
+    }
+  }, [ready]);
+
+  const dismissScreenSuggestion = () => {
+    setShowScreenSuggestion(false);
+    try {
+      localStorage.setItem(SCREEN_SUGGESTION_KEY, "dismissed");
+    } catch {
+      // The suggestion can still be dismissed for this session.
+    }
+  };
 
   const flush = useCallback((): Promise<boolean> => {
     clearTimeout(timer.current);
@@ -455,6 +490,30 @@ export default function NotebookApp() {
             </>
           )}
         </div>
+      )}
+      {showScreenSuggestion && (
+        <aside
+          className="notebook-screen-suggestion"
+          role="region"
+          aria-label="Screen size suggestion"
+        >
+          <span className="notebook-screen-suggestion__icon">
+            <ScreenSuggestionIcon />
+          </span>
+          <span className="notebook-screen-suggestion__copy">
+            <strong>More room, better flow.</strong>
+            <span>
+              Draw Notes is designed for tablets and larger screens. You can
+              keep working here, with more canvas space on a bigger device.
+            </span>
+          </span>
+          <button
+            aria-label="Dismiss screen size suggestion and continue here"
+            onClick={dismissScreenSuggestion}
+          >
+            Continue here
+          </button>
+        </aside>
       )}
       {!active ? (
         <main className="notebook-home">
