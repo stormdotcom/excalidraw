@@ -100,6 +100,40 @@ describe("notebook navigation", () => {
     expect(saved.pages[1].appState.name).toBeUndefined();
   });
 
+  it("duplicates a written page with an independent id", async () => {
+    await startNote();
+    fireEvent.click(screen.getByText("Write test stroke"));
+    fireEvent.click(screen.getByLabelText("Duplicate page"));
+    await screen.findByText("Page 2");
+    fireEvent.click(screen.getByText("All notes"));
+    await screen.findByText("Recent notes");
+
+    const saved = vi.mocked(saveNotebook).mock.calls.at(-1)![0];
+    expect(saved.pages).toHaveLength(2);
+    expect(saved.pages[1].appState.name).toBe("Written page");
+    expect(saved.pages[1].id).not.toBe(saved.pages[0].id);
+  });
+
+  it("bookmarks, reorders and deletes pages locally", async () => {
+    await startNote();
+    fireEvent.click(screen.getByLabelText("Add page"));
+    await screen.findByText("Page 2");
+
+    fireEvent.click(screen.getByLabelText("Bookmark page"));
+    await waitFor(() =>
+      expect(screen.getByLabelText("Remove bookmark")).toBeEnabled(),
+    );
+    fireEvent.click(screen.getByLabelText("Move page up"));
+    await waitFor(() =>
+      expect(screen.getByLabelText("Move page up")).toBeDisabled(),
+    );
+    fireEvent.click(screen.getByLabelText("Delete page"));
+    await waitFor(() =>
+      expect(screen.queryByText("Page 2")).not.toBeInTheDocument(),
+    );
+    expect(screen.getByLabelText("Delete page")).toBeDisabled();
+  });
+
   it("stays in the editor with a backup action when storage fails", async () => {
     await startNote();
     vi.mocked(saveNotebook).mockRejectedValue(new Error("Storage is full"));

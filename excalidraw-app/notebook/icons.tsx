@@ -94,3 +94,27 @@ export const ExportIcon = icon(
     <path d="M9.5 14.5l2.5 2.5l2.5 -2.5" />
   </>,
 );
+
+export const BookmarkIcon = icon(
+  <path d="M6 4a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v18l-6 -4l-6 4z" />,
+);
+
+export const CopyIcon = icon(
+  <>
+    <rect x="8" y="8" width="12" height="12" rx="2" />
+    <path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2" />
+  </>,
+);
+
+export const ArrowUpIcon = icon(<path d="M12 19v-14M6 11l6 -6l6 6" />);
+
+export const ArrowDownIcon = icon(<path d="M12 5v14M18 13l-6 6l-6 -6" />);
+
+export const TrashIcon = icon(
+  <>
+    <path d="M4 7h16" />
+    <path d="M10 11v6M14 11v6" />
+    <path d="M5 7l1 13h12l1 -13" />
+    <path d="M9 7v-3h6v3" />
+  </>,
+);

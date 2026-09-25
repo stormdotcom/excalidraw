@@ -3,6 +3,9 @@ import type { ReactNode } from "react";
 
 export type NoteTool = "pencil" | "highlighter" | "eraser" | "select" | "hand";
 
+const RECENT_COLORS_KEY = "draw-notebook-recent-colors";
+const MAX_RECENT_COLORS = 6;
+
 type ColorSwatch = { color: string; name: string };
 type ColorPalette = { id: string; name: string; colors: ColorSwatch[] };
 
@@ -219,6 +222,14 @@ export const NotebookToolbar = ({
     pencil: PENCIL_PALETTES[0].id,
     highlighter: HIGHLIGHTER_PALETTES[0].id,
   });
+  const [recentColors, setRecentColors] = useState<string[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(RECENT_COLORS_KEY) || "[]");
+      return Array.isArray(saved) ? saved.slice(0, MAX_RECENT_COLORS) : [];
+    } catch {
+      return [];
+    }
+  });
   const palette =
     palettes?.find((item) => item.id === selectedPalettes[paletteTool]) ||
     palettes?.[0];
@@ -235,6 +246,20 @@ export const NotebookToolbar = ({
       );
     }
   }, [activeColor, paletteTool, palettes]);
+
+  const pickColor = (color: string) => {
+    const next = [
+      color,
+      ...recentColors.filter((item) => item !== color),
+    ].slice(0, MAX_RECENT_COLORS);
+    setRecentColors(next);
+    try {
+      localStorage.setItem(RECENT_COLORS_KEY, JSON.stringify(next));
+    } catch {
+      // Recent colors are a convenience; drawing still works without storage.
+    }
+    onColor(color);
+  };
 
   return (
     <>
@@ -274,6 +299,26 @@ export const NotebookToolbar = ({
             ))}
           </div>
           <div className="notebook-palette__swatches">
+            {!!recentColors.length && (
+              <div
+                className="notebook-palette__recent"
+                role="radiogroup"
+                aria-label="Recent colours"
+              >
+                {recentColors.map((color) => (
+                  <button
+                    key={color}
+                    role="radio"
+                    aria-checked={color === activeColor}
+                    aria-label={`Recent ${color}`}
+                    title={`Recent ${color}`}
+                    className="notebook-palette__swatch"
+                    style={{ "--swatch": color } as React.CSSProperties}
+                    onClick={() => pickColor(color)}
+                  />
+                ))}
+              </div>
+            )}
             <div
               className="notebook-palette__swatch-list"
               role="radiogroup"
@@ -292,7 +337,7 @@ export const NotebookToolbar = ({
                   title={name}
                   className="notebook-palette__swatch"
                   style={{ "--swatch": color } as React.CSSProperties}
-                  onClick={() => onColor(color)}
+                  onClick={() => pickColor(color)}
                 />
               ))}
             </div>
@@ -306,7 +351,7 @@ export const NotebookToolbar = ({
               type="color"
               value={activeColor}
               aria-label="Custom colour"
-              onChange={(event) => onColor(event.target.value)}
+              onChange={(event) => pickColor(event.target.value)}
             />
             <span aria-hidden="true">+</span>
           </label>

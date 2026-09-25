@@ -12,6 +12,7 @@ export type Paper =
 export type NotePage = {
   id: string;
   paper: Paper;
+  bookmarked?: boolean;
   elements: readonly OrderedExcalidrawElement[];
   files: BinaryFiles;
   appState: Partial<AppState>;
@@ -31,6 +32,12 @@ export const createPage = (paper: Paper = "ruled"): NotePage => ({
   elements: [],
   files: {},
   appState: {},
+});
+
+export const duplicatePage = (page: NotePage): NotePage => ({
+  ...structuredClone(page),
+  id: crypto.randomUUID(),
+  bookmarked: false,
 });
 
 export const createNotebook = (): Notebook => ({

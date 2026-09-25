@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import { createNotebook, createPage } from "./model";
+import { createNotebook, createPage, duplicatePage } from "./model";
 import type { Notebook, NotePage, Paper } from "./model";
 import { listNotebooks, saveNotebook } from "./storage";
 import { PageEditor } from "./PageEditor";
@@ -10,6 +10,10 @@ import { NoteOpenAnimation } from "./NoteOpenAnimation";
 import { DRAW_LOGO_SHAPES } from "../../packages/excalidraw/components/LoadingMessage";
 import {
   BackIcon,
+  ArrowDownIcon,
+  ArrowUpIcon,
+  BookmarkIcon,
+  CopyIcon,
   DownloadIcon,
   ExportIcon,
   ExitFullscreenIcon,
@@ -18,6 +22,7 @@ import {
   MoonIcon,
   PlusIcon,
   SunIcon,
+  TrashIcon,
 } from "./icons";
 import "./notebook.scss";
 
@@ -392,6 +397,53 @@ export default function NotebookApp() {
       true,
     );
   };
+  const updatePages = (pages: NotePage[], nextPageIndex = pageIndex) => {
+    const note = current.current!;
+    change({ ...note, pages }, true);
+    setPageIndex(nextPageIndex);
+  };
+  const toggleBookmark = () => {
+    void navigate(() => {
+      const note = current.current!;
+      updatePages(
+        note.pages.map((item, index) =>
+          index === pageIndex
+            ? { ...item, bookmarked: !item.bookmarked }
+            : item,
+        ),
+      );
+    });
+  };
+  const copyPage = () => {
+    void navigate(() => {
+      const note = current.current!;
+      const pages = [...note.pages];
+      pages.splice(pageIndex + 1, 0, duplicatePage(pages[pageIndex]));
+      updatePages(pages, pageIndex + 1);
+    });
+  };
+  const movePage = (offset: -1 | 1) => {
+    void navigate(() => {
+      const note = current.current!;
+      const target = pageIndex + offset;
+      if (target < 0 || target >= note.pages.length) {
+        return;
+      }
+      const pages = [...note.pages];
+      [pages[pageIndex], pages[target]] = [pages[target], pages[pageIndex]];
+      updatePages(pages, target);
+    });
+  };
+  const removePage = () => {
+    if (!current.current || current.current.pages.length === 1) {
+      return;
+    }
+    void navigate(() => {
+      const note = current.current!;
+      const pages = note.pages.filter((_, index) => index !== pageIndex);
+      updatePages(pages, Math.min(pageIndex, pages.length - 1));
+    });
+  };
   const startNewNote = () => {
     const note = createNotebook();
     openNote(note);
@@ -671,7 +723,10 @@ export default function NotebookApp() {
                   </div>
                 </div>
                 <span className="notebook-panel-label notebook-panel-label--pages">
-                  Pages
+                  Pages{" "}
+                  <small>
+                    {pageIndex + 1} / {active.pages.length}
+                  </small>
                 </span>
                 <nav aria-label="Note pages">
                   {active.pages.map((item, index) => (
@@ -689,27 +744,64 @@ export default function NotebookApp() {
                     >
                       <span
                         className={`notebook-page-preview notebook-page-preview--${item.paper}`}
-                      />
-                      Page {index + 1}
+                      >
+                        {item.bookmarked && (
+                          <span className="notebook-page-preview__bookmark" />
+                        )}
+                      </span>
+                      <span>Page {index + 1}</span>
                     </button>
                   ))}
                 </nav>
+                <div
+                  className="notebook-page-actions"
+                  role="toolbar"
+                  aria-label={`Page ${pageIndex + 1} actions`}
+                >
+                  <HeaderButton
+                    icon={BookmarkIcon}
+                    label={
+                      page.bookmarked ? "Remove bookmark" : "Bookmark page"
+                    }
+                    disabled={busy}
+                    onClick={toggleBookmark}
+                  />
+                  <HeaderButton
+                    icon={CopyIcon}
+                    label="Duplicate page"
+                    disabled={busy}
+                    onClick={copyPage}
+                  />
+                  <HeaderButton
+                    icon={ArrowUpIcon}
+                    label="Move page up"
+                    disabled={busy || pageIndex === 0}
+                    onClick={() => movePage(-1)}
+                  />
+                  <HeaderButton
+                    icon={ArrowDownIcon}
+                    label="Move page down"
+                    disabled={busy || pageIndex === active.pages.length - 1}
+                    onClick={() => movePage(1)}
+                  />
+                  <HeaderButton
+                    icon={TrashIcon}
+                    label="Delete page"
+                    disabled={busy || active.pages.length === 1}
+                    onClick={removePage}
+                  />
+                </div>
                 <button
                   className="notebook-add-page"
                   aria-label="Add page"
-                  title="Add a new page after the last one"
+                  title="Add a new page after this page"
                   disabled={busy}
                   onClick={() =>
                     void navigate(() => {
                       const note = current.current!;
-                      change(
-                        {
-                          ...note,
-                          pages: [...note.pages, createPage(page.paper)],
-                        },
-                        true,
-                      );
-                      setPageIndex(note.pages.length);
+                      const pages = [...note.pages];
+                      pages.splice(pageIndex + 1, 0, createPage(page.paper));
+                      updatePages(pages, pageIndex + 1);
                     })
                   }
                 >
