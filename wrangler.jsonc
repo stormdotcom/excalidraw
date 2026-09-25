@@ -3,6 +3,9 @@
   // must match the Worker name in the Cloudflare dashboard
   "name": "excalidraw",
   "compatibility_date": "2026-09-25",
+  "build": {
+    "command": "node ./scripts/cloudflare-build.js"
+  },
   "assets": {
     "directory": "./excalidraw-app/build",
     "not_found_handling": "single-page-application"
