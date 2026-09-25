@@ -265,7 +265,9 @@ export const PageEditor = ({
   };
 
   return (
-    <div className="notebook-editor">
+    <div
+      className={`notebook-editor notebook-editor--tool-${tool || "default"}`}
+    >
       <svg
         className="notebook-paper"
         aria-hidden="true"

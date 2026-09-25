@@ -1,42 +1,101 @@
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
 export type NoteTool = "pencil" | "highlighter" | "eraser" | "select" | "hand";
 
-export const PENCIL_COLORS = [
-  "#1e1e1e",
-  "#3157d5",
-  "#f03e3e",
-  "#2b8a3e",
-  "#7048e8",
-  "#f76707",
-  "#d6336c",
-  "#0c8599",
-];
-export const HIGHLIGHTER_COLORS = [
-  "#ffe066",
-  "#8ce99a",
-  "#faa2c1",
-  "#74c0fc",
-  "#b197fc",
-  "#ffc078",
+type ColorSwatch = { color: string; name: string };
+type ColorPalette = { id: string; name: string; colors: ColorSwatch[] };
+
+export const PENCIL_PALETTES: ColorPalette[] = [
+  {
+    id: "studio",
+    name: "Studio",
+    colors: [
+      { color: "#1e1e1e", name: "Graphite" },
+      { color: "#3157d5", name: "Cobalt" },
+      { color: "#f03e3e", name: "Vermilion" },
+      { color: "#2b8a3e", name: "Palm" },
+      { color: "#7048e8", name: "Iris" },
+      { color: "#f76707", name: "Mandarin" },
+      { color: "#d6336c", name: "Raspberry" },
+      { color: "#0c8599", name: "Ocean" },
+    ],
+  },
+  {
+    id: "earth",
+    name: "Earth",
+    colors: [
+      { color: "#292524", name: "Charcoal" },
+      { color: "#78716c", name: "Stone" },
+      { color: "#9a3412", name: "Terracotta" },
+      { color: "#b45309", name: "Ochre" },
+      { color: "#4d7c0f", name: "Moss" },
+      { color: "#0f766e", name: "Juniper" },
+      { color: "#7c2d12", name: "Sienna" },
+      { color: "#7e22ce", name: "Orchid" },
+    ],
+  },
+  {
+    id: "electric",
+    name: "Electric",
+    colors: [
+      { color: "#111827", name: "Midnight" },
+      { color: "#2563eb", name: "Electric blue" },
+      { color: "#06b6d4", name: "Aqua" },
+      { color: "#84cc16", name: "Acid green" },
+      { color: "#facc15", name: "Solar" },
+      { color: "#f97316", name: "Signal orange" },
+      { color: "#ec4899", name: "Hot pink" },
+      { color: "#8b5cf6", name: "Ultraviolet" },
+    ],
+  },
 ];
 
-const COLOR_NAMES: Record<string, string> = {
-  "#1e1e1e": "Graphite",
-  "#3157d5": "Cobalt",
-  "#f03e3e": "Vermilion",
-  "#2b8a3e": "Palm",
-  "#7048e8": "Iris",
-  "#f76707": "Mandarin",
-  "#d6336c": "Raspberry",
-  "#0c8599": "Ocean",
-  "#ffe066": "Butter",
-  "#8ce99a": "Mint",
-  "#faa2c1": "Petal",
-  "#74c0fc": "Pool",
-  "#b197fc": "Lavender",
-  "#ffc078": "Peach",
-};
+export const HIGHLIGHTER_PALETTES: ColorPalette[] = [
+  {
+    id: "soft",
+    name: "Soft",
+    colors: [
+      { color: "#ffe066", name: "Butter" },
+      { color: "#8ce99a", name: "Mint" },
+      { color: "#faa2c1", name: "Petal" },
+      { color: "#74c0fc", name: "Pool" },
+      { color: "#b197fc", name: "Lavender" },
+      { color: "#ffc078", name: "Peach" },
+    ],
+  },
+  {
+    id: "sorbet",
+    name: "Sorbet",
+    colors: [
+      { color: "#fde68a", name: "Vanilla" },
+      { color: "#fdba74", name: "Apricot" },
+      { color: "#f9a8d4", name: "Dragon fruit" },
+      { color: "#c4b5fd", name: "Ube" },
+      { color: "#a5f3fc", name: "Ice blue" },
+      { color: "#bef264", name: "Lime sorbet" },
+    ],
+  },
+  {
+    id: "neon",
+    name: "Neon",
+    colors: [
+      { color: "#fef08a", name: "Neon yellow" },
+      { color: "#bef264", name: "Neon lime" },
+      { color: "#67e8f9", name: "Neon cyan" },
+      { color: "#93c5fd", name: "Neon blue" },
+      { color: "#d8b4fe", name: "Neon violet" },
+      { color: "#f9a8d4", name: "Neon pink" },
+    ],
+  },
+];
+
+export const PENCIL_COLORS = PENCIL_PALETTES[0].colors.map(
+  ({ color }) => color,
+);
+export const HIGHLIGHTER_COLORS = HIGHLIGHTER_PALETTES[0].colors.map(
+  ({ color }) => color,
+);
 
 const icon = (children: ReactNode) => (
   <svg
@@ -148,44 +207,100 @@ export const NotebookToolbar = ({
   onColor: (color: string) => void;
   onFit: () => void;
 }) => {
-  const colors =
+  const palettes =
     tool === "highlighter"
-      ? HIGHLIGHTER_COLORS
+      ? HIGHLIGHTER_PALETTES
       : tool === "pencil"
-      ? PENCIL_COLORS
+      ? PENCIL_PALETTES
       : null;
   const activeColor = tool === "highlighter" ? highlighterColor : pencilColor;
+  const paletteTool = tool === "highlighter" ? "highlighter" : "pencil";
+  const [selectedPalettes, setSelectedPalettes] = useState({
+    pencil: PENCIL_PALETTES[0].id,
+    highlighter: HIGHLIGHTER_PALETTES[0].id,
+  });
+  const palette =
+    palettes?.find((item) => item.id === selectedPalettes[paletteTool]) ||
+    palettes?.[0];
+
+  useEffect(() => {
+    const matchingPalette = palettes?.find((item) =>
+      item.colors.some(({ color }) => color === activeColor),
+    );
+    if (matchingPalette) {
+      setSelectedPalettes((current) =>
+        current[paletteTool] === matchingPalette.id
+          ? current
+          : { ...current, [paletteTool]: matchingPalette.id },
+      );
+    }
+  }, [activeColor, paletteTool, palettes]);
 
   return (
     <>
-      {colors && (
-        <div
-          className="notebook-palette"
-          role="radiogroup"
-          aria-label={
-            tool === "highlighter" ? "Highlighter colour" : "Pencil colour"
-          }
-        >
+      {palette && palettes && (
+        <div className="notebook-palette">
           <span className="notebook-palette__label">
-            {tool === "highlighter" ? "Marker shelf" : "Trending inks"}
+            {tool === "highlighter" ? "Marker sets" : "Ink sets"}
           </span>
-          <div className="notebook-palette__swatches">
-            {colors.map((color) => (
+          <div
+            className="notebook-palette__sets"
+            aria-label={
+              tool === "highlighter"
+                ? "Highlighter palettes"
+                : "Pencil palettes"
+            }
+          >
+            {palettes.map((item) => (
               <button
-                key={color}
-                role="radio"
-                aria-checked={color === activeColor}
-                aria-label={COLOR_NAMES[color] || `Colour ${color}`}
-                title={COLOR_NAMES[color] || `Colour ${color}`}
-                className="notebook-palette__swatch"
-                style={{ "--swatch": color } as React.CSSProperties}
-                onClick={() => onColor(color)}
-              />
+                key={item.id}
+                className="notebook-palette__set"
+                aria-pressed={item.id === palette.id}
+                title={`${item.name} palette`}
+                onClick={() =>
+                  setSelectedPalettes((current) => ({
+                    ...current,
+                    [paletteTool]: item.id,
+                  }))
+                }
+              >
+                <span className="notebook-palette__set-preview">
+                  {item.colors.slice(0, 4).map(({ color }) => (
+                    <span key={color} style={{ background: color }} />
+                  ))}
+                </span>
+                <span>{item.name}</span>
+              </button>
             ))}
+          </div>
+          <div className="notebook-palette__swatches">
+            <div
+              className="notebook-palette__swatch-list"
+              role="radiogroup"
+              aria-label={
+                tool === "highlighter"
+                  ? `${palette.name} highlighter colours`
+                  : `${palette.name} pencil colours`
+              }
+            >
+              {palette.colors.map(({ color, name }) => (
+                <button
+                  key={color}
+                  role="radio"
+                  aria-checked={color === activeColor}
+                  aria-label={name}
+                  title={name}
+                  className="notebook-palette__swatch"
+                  style={{ "--swatch": color } as React.CSSProperties}
+                  onClick={() => onColor(color)}
+                />
+              ))}
+            </div>
           </div>
           <label
             className="notebook-palette__custom"
             title="Mix a custom colour"
+            style={{ "--swatch": activeColor } as React.CSSProperties}
           >
             <input
               type="color"
